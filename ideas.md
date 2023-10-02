@@ -60,3 +60,11 @@ Hello tehre shis is a test
 hello there
 
 hello there this is a test
+
+---
+
+After talking with GPT I have some more ideas that I can work with...
+
+Mainly I think I should be taking as much data as possible, keypress up and keypress down for each letter, then I guess on the local system I can process that right?
+But could also have it be processed on the remote machine too, that would be nice 
+Let's just have it process on server for now and just accept that json data of keystrokes plus the original text...
