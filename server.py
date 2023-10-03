@@ -13,18 +13,6 @@ def process_data(data):
     
     print(sentence)
     print(total_time)
-    print(total_time_calculated)
-
-def get_total_time(keystrokes):
-    total = 0
-
-    for item in keystrokes:
-
-        print(item)
-
-        total += item["time"]
-
-    return total
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,12 +21,14 @@ def main():
 
     server_socket.listen(1)
 
+    client_socket, client_address = server_socket.accept()
+
     while True:
-        client_socket, client_address = server_socket.accept()
+        
 
         data = client_socket.recv(4096 * 32).decode('utf-8')
-        if not data:
-            break
+        #if not data:
+        #    break
 
         print(data)
 
