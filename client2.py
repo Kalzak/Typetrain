@@ -4,7 +4,7 @@ import json
 import time
 
 HOST = '127.0.0.1'
-PORT = 12345
+PORT = 12346
 
 # Networking stuff
 client_socket = None
@@ -46,8 +46,10 @@ def on_key_press(key):
         if key == keyboard.Key.backspace:
             typed_sentence = typed_sentence[:-1]
 
-
     keypress_time = (time.time() * 1000) - sentence_start_time
+
+    if keypress_time < 1:
+        keypress_time = 0
 
     keystrokes.append({"key": key_pressed_string, "action": "down", "time": keypress_time})
     #print(key_pressed_string)
