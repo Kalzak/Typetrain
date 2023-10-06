@@ -2,6 +2,8 @@ from pynput import keyboard
 import socket
 import json
 import time
+import random
+import os
 
 HOST = '127.0.0.1'
 PORT = 12346
@@ -10,17 +12,33 @@ PORT = 12346
 client_socket = None
 
 # Typing stuff
+sentences = [
+    "The quick brown fox jumps over the lazy dog.",
+    "A watched pot never boils.",
+    "All that glitters is not gold.",
+    "Actions speak louder than words.",
+    "Where there's a will, there's a way.",
+    "Every cloud has a silver lining.",
+    "Don't count your chickens before they hatch.",
+    "Birds of a feather flock together.",
+    "A penny for your thoughts.",
+    "You can't judge a book by its cover."
+]
 keystrokes = []
 ctrl_pressed = False
 typed_sentence = ""
-target_sentence = "Hello there"
+target_sentence = "Hello there this is a test to see how well I can type"
 sentence_start_time = None
 
 def on_key_press(key):
     global ctrl_pressed, typed_sentence, sentence_start_time
 
+    os.system("clear")
+
     if sentence_start_time is None:
         sentence_start_time = time.time() * 1000
+    else:
+        print(target_sentence)
 
     key_pressed_string = ""
 
@@ -59,7 +77,7 @@ def on_key_press(key):
 def on_key_release(key):
 
 
-    global ctrl_pressed, keystrokes, typed_sentence, sentence_start_time
+    global ctrl_pressed, keystrokes, typed_sentence, sentence_start_time, target_sentence
 
     key_pressed_string = ""
 
@@ -97,10 +115,16 @@ def on_key_release(key):
         typed_sentence = ""
         keystrokes = []
         sentence_start_time = None
+        target_sentence = random.choice(sentences)
+        os.system("clear")
+        print(target_sentence)
 
 
 def main():
-    global client_socket
+    global client_socket, target_sentence
+
+    target_sentence = random.choice(sentences)
+    print(target_sentence)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((HOST, PORT))

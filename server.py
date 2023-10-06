@@ -13,8 +13,11 @@ def process_data(data):
 
     actual_cpm = calculate_cpm(sentence, total_time)
     potential_cpm = calculate_potential_cpm(sentence, keystrokes)
-    print(actual_cpm)
-    print(potential_cpm)
+    if potential_cpm == actual_cpm:
+        potential_cpm = "N/A"
+    print("Sentence: ", sentence)
+    print("Actual CPM:    ", actual_cpm)
+    print("Potential CPM: ", potential_cpm, "\n")
 
 def calculate_cpm(sentence, total_time):
     num_chars = len(sentence)
@@ -47,20 +50,14 @@ def calculate_potential_cpm(sentence, keystrokes):
                 else:
                     fail_indexes.append(len(keystroke_times))
 
-    #accurate_keystrokes = []    
-    #for i in range(0, len(keystroke_times)):
-    #    if i in fail_indexes:
-    #        continue
-    #    accurate_keystrokes.append(keystroke_times[i])
-
-    #if i in range(1, len(accurate_keystrokes)):
+    if len(fail_indexes) == 0:
+        return calculate_cpm(sentence, keystrokes[-1]["time"])
 
     all_timediffs = []
 
     base_range = 0
     for fail_index in fail_indexes:
         subarray = keystroke_times[base_range:fail_index]
-        #print(subarray)
         base_range = fail_index
 
         timediffs = []
@@ -75,9 +72,6 @@ def calculate_potential_cpm(sentence, keystrokes):
         timediffs.append(subarray[i] - subarray[i-1])
 
     all_timediffs.extend(timediffs)
-    #print(subarray)
-
-    print(all_timediffs)
 
     average_time_per_good_character = sum(all_timediffs) / len(all_timediffs)
 
@@ -86,28 +80,6 @@ def calculate_potential_cpm(sentence, keystrokes):
     potential_cpm = calculate_cpm(sentence, optimal_time)
 
     return potential_cpm
-
-
-
-
-
-    #average_correct_character_time = sum(accurate_keystrokes) / len(accurate_keystrokes)
-    #print("avg correct char time: ", average_correct_character_time)
-
-
-
-    #print(typed_sentence)
-    #print(keystroke_times)
-    #print(fail_indexes)
-
-    #print(len(typed_sentence))
-    #print(len(keystroke_times))
-    
-
-
-
-
-
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -129,8 +101,6 @@ def main():
 
         json_data = json.loads(data)
         process_data(json_data)
-
-        print("connected")
 
 if __name__ == "__main__":
     main()
