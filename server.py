@@ -2,7 +2,7 @@ import socket
 import json
 
 HOST = '127.0.0.1'
-PORT = 12346
+PORT = 12345
 
 def process_data(data):
     sentence = data["sentence"]
