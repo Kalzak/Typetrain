@@ -4,6 +4,8 @@ import json
 import time
 import random
 import os
+import requests
+from bs4 import BeautifulSoup
 
 # Network data
 HOST = '127.0.0.1'
@@ -114,12 +116,47 @@ def prep_new_race():
     typed_sentence = ""
     keystrokes = []
     sentence_start_time = None
-    target_sentence = random.choice(sentences)
+
+    # Uncomment for predetermined races
+    #target_sentence = random.choice(sentences)
+    
+    # Uncomment for typeracer races
+    target_sentence = get_new_text() 
 
 def display_race(target_sentence, typed_sentence):
+    green_text = "\033[32m"
+    red_text = "\033[31m"
+    reset_text = "\033[0m"
+
+    correct_end_index = 0
+    wrong_end_index = None
+
+    for i in range(0, len(typed_sentence)):
+        if target_sentence[i] == typed_sentence[i] and wrong_end_index is None:
+            correct_end_index = i + 1
+        else:
+            wrong_end_index = i + 1
+    
     os.system("clear")
-    print(target_sentence)
-    print(typed_sentence + "_")
+    if correct_end_index is not None:
+        print(green_text + target_sentence[0:correct_end_index] + reset_text, end="")
+    else:
+        correct_end_index = 0
+
+    if wrong_end_index is not None:
+        print(red_text + typed_sentence[correct_end_index:] + reset_text, end="")
+        print(target_sentence[wrong_end_index:])
+    else:
+        print(target_sentence[correct_end_index:])
+    print("")
+
+def get_new_text():
+    url = "https://typeracerdata.com/text?id=" + str(random.randint(1,750))
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        text_element = soup.find("p")
+        return text_element.text[2:]
 
 def main():
     global client_socket, target_sentence
