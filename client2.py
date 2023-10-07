@@ -118,17 +118,17 @@ def prep_new_race():
     sentence_start_time = None
 
     # Uncomment for predetermined races
-    #target_sentence = random.choice(sentences)
+    target_sentence = random.choice(sentences)
     
     # Uncomment for typeracer races
-    target_sentence = get_new_text() 
+    #target_sentence = get_new_text() 
 
 def display_race(target_sentence, typed_sentence):
     green_text = "\033[32m"
     red_text = "\033[31m"
     reset_text = "\033[0m"
 
-    correct_end_index = 0
+    correct_end_index = None
     wrong_end_index = None
 
     for i in range(0, len(typed_sentence)):
@@ -144,11 +144,10 @@ def display_race(target_sentence, typed_sentence):
         correct_end_index = 0
 
     if wrong_end_index is not None:
-        print(red_text + typed_sentence[correct_end_index:] + reset_text, end="")
+        print(red_text + target_sentence[correct_end_index:wrong_end_index] + reset_text, end="")
         print(target_sentence[wrong_end_index:])
     else:
         print(target_sentence[correct_end_index:])
-    print("")
 
 def get_new_text():
     url = "https://typeracerdata.com/text?id=" + str(random.randint(1,750))
