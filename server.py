@@ -11,13 +11,15 @@ def process_data(data):
     total_time = keystrokes[-1]["time"]
     actual_cpm = calculate_cpm(sentence, total_time)
     potential_cpm = calculate_potential_cpm(sentence, keystrokes)
+    fail_words = find_fail_words(sentence, keystrokes)
     
     if potential_cpm == actual_cpm:
         potential_cpm = "N/A"
 
     print("Sentence: ", sentence)
     print("Actual CPM:    ", actual_cpm)
-    print("Potential CPM: ", potential_cpm, "\n")
+    print("Potential CPM: ", potential_cpm)
+    print("Fail words:", fail_words, "\n")
 
 def calculate_cpm(sentence, total_time):
     return (len(sentence) / total_time) * 60000
@@ -77,6 +79,58 @@ def calculate_potential_cpm(sentence, keystrokes):
     potential_cpm = calculate_cpm(sentence, optimal_time)
 
     return potential_cpm
+
+def find_fail_words(sentence, keystrokes):
+    fail_words = []
+    fail_indexes = []
+    fail_letters = ["" for _ in range(len(sentence))]
+    typed_sentence = ""
+    already_error = False
+
+    for keystroke in keystrokes:
+
+        key = keystroke["key"]
+
+        if keystroke["action"] == "up":
+            continue
+
+        if len(key) == 1:
+            typed_sentence += key
+        if key == "Key.space":
+            typed_sentence += " "
+        if key == "Key.backspace":
+            typed_sentence = typed_sentence[:-1]
+
+        if typed_sentence != sentence[:len(typed_sentence)]:
+            if already_error == False:
+                fail_indexes.append(len(typed_sentence) - 1)
+                fail_letters[len(typed_sentence)-1] = key
+                already_error = True
+        else:
+            already_error = False
+
+    word = ""
+    error_in_word = False
+    error_in_word_letter = ""
+    error_in_word_index = 0
+    word_start_index = 0
+    for i in range(0, len(sentence)):
+
+        if sentence[i] == " " or i == len(sentence)-1:
+            if error_in_word:
+                fail_words.append([word, error_in_word_index - word_start_index, error_in_word_letter])
+            word = ""
+            error_in_word = False
+            word_start_index = i + 1
+        else:
+            word += sentence[i]
+            if i in fail_indexes:
+                if error_in_word == False:
+                    error_in_word = True
+                    error_in_word_index = i
+                    error_in_word_letter = fail_letters[i]
+
+    return fail_words
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
