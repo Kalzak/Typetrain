@@ -102,7 +102,6 @@ def on_key_release(key):
         data = {
             "sentence": target_sentence,
             "keystrokes": keystrokes,
-            "total_time": (time.time() * 1000) - sentence_start_time
         }
         json_data = json.dumps(data)
         client_socket.send(json_data.encode('utf-8'))

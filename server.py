@@ -7,22 +7,20 @@ PORT = 12345
 def process_data(data):
     sentence = data["sentence"]
     keystrokes = data["keystrokes"]
-    total_time = data["total_time"]
 
     total_time = keystrokes[-1]["time"]
-
     actual_cpm = calculate_cpm(sentence, total_time)
     potential_cpm = calculate_potential_cpm(sentence, keystrokes)
+    
     if potential_cpm == actual_cpm:
         potential_cpm = "N/A"
+
     print("Sentence: ", sentence)
     print("Actual CPM:    ", actual_cpm)
     print("Potential CPM: ", potential_cpm, "\n")
 
 def calculate_cpm(sentence, total_time):
-    num_chars = len(sentence)
-
-    return (num_chars / total_time) * 60000
+    return (len(sentence) / total_time) * 60000
 
 def calculate_potential_cpm(sentence, keystrokes):
     keystroke_times = []
@@ -42,13 +40,12 @@ def calculate_potential_cpm(sentence, keystrokes):
             keystroke_times = keystroke_times[:-1]
             typed_sentence = typed_sentence[:-1]
 
-            if len(fail_indexes) == 0:
-                fail_indexes.append(len(keystroke_times))
-            else:
-                if(fail_indexes[-1] > len(keystroke_times)-1):
-                    fail_indexes[len(fail_indexes)-1] = len(keystroke_times)
-                else:
-                    fail_indexes.append(len(keystroke_times))
+            new_fail_index = len(typed_sentence)
+
+            while len(fail_indexes) != 0 and fail_indexes[-1] >= new_fail_index:
+                fail_indexes.pop()
+            fail_indexes.append(new_fail_index)
+
 
     if len(fail_indexes) == 0:
         return calculate_cpm(sentence, keystrokes[-1]["time"])
@@ -83,21 +80,16 @@ def calculate_potential_cpm(sentence, keystrokes):
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     server_socket.bind((HOST, PORT))
-
     server_socket.listen(1)
-
     client_socket, client_address = server_socket.accept()
 
     while True:
-        
 
         data = client_socket.recv(4096 * 32).decode('utf-8')
-        #if not data:
-        #    break
 
-        #print(data)
+        if not data:
+            break
 
         json_data = json.loads(data)
         process_data(json_data)
