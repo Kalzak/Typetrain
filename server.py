@@ -9,22 +9,42 @@ def process_data(data):
     keystrokes = data["keystrokes"]
 
     total_time = keystrokes[-1]["time"]
+    optimal_time = calculate_optimal_time(sentence, keystrokes)
     actual_cpm = calculate_cpm(sentence, total_time)
     potential_cpm = calculate_potential_cpm(sentence, keystrokes)
+    actual_wpm = calculate_wpm(sentence, total_time)
+    potential_wpm = calculate_potential_wpm(sentence, keystrokes)
     fail_words = find_fail_words(sentence, keystrokes)
     
+    if total_time == optimal_time:
+        optimal_time = "N/A"
+
     if potential_cpm == actual_cpm:
         potential_cpm = "N/A"
 
-    print("Sentence: ", sentence)
+    if potential_wpm == actual_wpm:
+        potential_wpm = "N/A"
+
+    print("Sentence:      ", sentence)
+    print("Actual time:   ", total_time)
+    print("Potential time:", optimal_time)
     print("Actual CPM:    ", actual_cpm)
     print("Potential CPM: ", potential_cpm)
-    print("Fail words:", fail_words, "\n")
+    print("Actual WPM:    ", actual_wpm)
+    print("Potential WPM: ", potential_wpm)
+    print("Fail words:    ", fail_words, "\n")
+
+def calculate_wpm(sentence, total_time):
+    return (len(sentence.split(" ")) / total_time) * 60000
+
+def calculate_potential_wpm(sentence, keystrokes):
+    optimal_time = calculate_optimal_time(sentence, keystrokes)
+    return calculate_wpm(sentence, optimal_time)
 
 def calculate_cpm(sentence, total_time):
     return (len(sentence) / total_time) * 60000
 
-def calculate_potential_cpm(sentence, keystrokes):
+def calculate_optimal_time(sentence, keystrokes):
     keystroke_times = []
     fail_indexes = []
     typed_sentence = []
@@ -50,7 +70,7 @@ def calculate_potential_cpm(sentence, keystrokes):
 
 
     if len(fail_indexes) == 0:
-        return calculate_cpm(sentence, keystrokes[-1]["time"])
+        return keystrokes[-1]["time"]
 
     all_timediffs = []
 
@@ -76,9 +96,11 @@ def calculate_potential_cpm(sentence, keystrokes):
 
     optimal_time = len(sentence) * average_time_per_good_character
 
-    potential_cpm = calculate_cpm(sentence, optimal_time)
+    return optimal_time
 
-    return potential_cpm
+def calculate_potential_cpm(sentence, keystrokes):
+    optimal_time = calculate_optimal_time(sentence, keystrokes)
+    return calculate_cpm(sentence, optimal_time)
 
 def find_fail_words(sentence, keystrokes):
     fail_words = []
