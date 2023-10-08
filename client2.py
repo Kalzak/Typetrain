@@ -121,7 +121,7 @@ def prep_new_race():
     target_sentence = random.choice(sentences)
     
     # Uncomment for typeracer races
-    #target_sentence = get_new_text() 
+    # target_sentence = get_new_text() 
 
 def display_race(target_sentence, typed_sentence):
     green_text = "\033[32m"
@@ -132,19 +132,24 @@ def display_race(target_sentence, typed_sentence):
     wrong_end_index = None
 
     for i in range(0, len(typed_sentence)):
-        if target_sentence[i] == typed_sentence[i] and wrong_end_index is None:
+        if i < len(target_sentence) and (target_sentence[i] == typed_sentence[i] and wrong_end_index) is None:
             correct_end_index = i + 1
         else:
             wrong_end_index = i + 1
     
     os.system("clear")
     if correct_end_index is not None:
-        print(green_text + target_sentence[0:correct_end_index] + reset_text, end="")
+        correct_text = target_sentence[0:correct_end_index]
+        print(green_text + correct_text + reset_text, end="")
     else:
         correct_end_index = 0
 
     if wrong_end_index is not None:
-        print(red_text + target_sentence[correct_end_index:wrong_end_index] + reset_text, end="")
+        if wrong_end_index <= len(target_sentence):
+            error_text = target_sentence[correct_end_index:wrong_end_index].replace(" ", "_")
+        else:
+            error_text = (target_sentence[correct_end_index:] + typed_sentence[len(target_sentence):]).replace(" ", "_")
+        print(red_text + error_text + reset_text, end="")
         print(target_sentence[wrong_end_index:])
     else:
         print(target_sentence[correct_end_index:])
