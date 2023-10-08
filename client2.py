@@ -118,10 +118,10 @@ def prep_new_race():
     sentence_start_time = None
 
     # Uncomment for predetermined races
-    target_sentence = random.choice(sentences)
+    #target_sentence = random.choice(sentences)
     
     # Uncomment for typeracer races
-    # target_sentence = get_new_text() 
+    target_sentence = get_new_text() 
 
 def display_race(target_sentence, typed_sentence):
     green_text = "\033[32m"
@@ -165,14 +165,20 @@ def get_new_text():
 def main():
     global client_socket, target_sentence
 
-    prep_new_race()
-    display_race(target_sentence, typed_sentence)
-
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((HOST, PORT))
 
+    input("Press enter to start")
+
+    prep_new_race()
+    display_race(target_sentence, typed_sentence)
+
+
+
     with keyboard.Listener(on_press = on_key_press, on_release = on_key_release, suppress=True) as listener:
         listener.join()
+
+    input("Press enter to exit")
 
     client_socket.close()
 
