@@ -15,6 +15,7 @@ def process_data(data):
     actual_wpm = calculate_wpm(sentence, total_time)
     potential_wpm = calculate_potential_wpm(sentence, keystrokes)
     fail_words = find_fail_words(sentence, keystrokes)
+    success_words = find_success_words(sentence, keystrokes)
     
     if total_time == optimal_time:
         optimal_time = "N/A"
@@ -32,7 +33,8 @@ def process_data(data):
     print("Potential CPM: ", potential_cpm)
     print("Actual WPM:    ", actual_wpm)
     print("Potential WPM: ", potential_wpm)
-    print("Fail words:    ", fail_words, "\n")
+    print("Fail words:    ", fail_words)
+    print("Success words: ", success_words, "\n")
 
 def calculate_wpm(sentence, total_time):
     return (len(sentence.split(" ")) / total_time) * 60000
@@ -140,7 +142,7 @@ def find_fail_words(sentence, keystrokes):
 
         if sentence[i] == " " or i == len(sentence)-1:
             if error_in_word:
-                fail_words.append([word, error_in_word_index - word_start_index, error_in_word_letter])
+                fail_words.append([word.lower(), error_in_word_index - word_start_index, error_in_word_letter.lower()])
             word = ""
             error_in_word = False
             word_start_index = i + 1
@@ -153,6 +155,56 @@ def find_fail_words(sentence, keystrokes):
                     error_in_word_letter = fail_letters[i]
 
     return fail_words
+
+def find_success_words(sentence, keystrokes):
+    success_words = []
+    typed_word = ""
+    error_in_word = False
+    first_letter_time = None
+
+    for keystroke in keystrokes:
+        key = keystroke["key"]
+
+        if keystroke["action"] == "up":
+            continue
+
+        if error_in_word == True and key != "Key.space":
+            continue
+
+        if key == "Key.space":
+            if error_in_word == False:
+                time_to_type = keystroke["time"] - first_letter_time
+                clean_word = clean_success_word(typed_word)
+                word_cpm = calculate_cpm(clean_word, time_to_type)
+                success_words.append([clean_word, time_to_type, word_cpm])
+                first_letter_time = None
+            error_in_word = False
+            typed_word = ""
+
+        if len(key) == 1:
+            typed_word += key
+            if first_letter_time is None:
+                first_letter_time = keystroke["time"]
+        if key == "Key.backspace":
+            error_in_word = True
+
+
+        print(key)
+        print(typed_word)
+
+    if error_in_word == False:
+        time_to_type = keystroke["time"] - first_letter_time
+        clean_word = clean_success_word(typed_word)
+        word_cpm = calculate_cpm(clean_word, time_to_type)
+        success_words.append([clean_word, time_to_type, word_cpm])
+        first_letter_time = None
+
+    return success_words
+
+def clean_success_word(word):
+    if word[-1] == "." or word[-1] == ",":
+        word = word[:-1]
+    return word.lower()
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
