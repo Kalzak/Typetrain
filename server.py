@@ -1,8 +1,12 @@
 import socket
 import json
+import os
+import matplotlib.pyplot as plt
 
 HOST = '127.0.0.1'
 PORT = 12345
+
+plt.ion()
 
 def process_data(data):
     sentence = data["sentence"]
@@ -35,6 +39,32 @@ def process_data(data):
     print("Potential WPM: ", potential_wpm)
     print("Fail words:    ", fail_words)
     print("Success words: ", success_words, "\n")
+
+    write_data(sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
+
+def write_data(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
+    file_path = "userdata.json"
+    
+    data = None
+    
+    if not os.path.exists(file_path):
+        data = {}
+    else:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+
+    for s_word in s_words:
+        if s_word[0] in data:
+            if len(data[s_word[0]]) >= 10:
+                data[s_word[0]].pop()
+                data[s_word[0]].append({"time": s_word[1],"cpm": s_word[2]})
+            else:
+                data[s_word[0]].append({"time": s_word[1],"cpm": s_word[2]})
+        else:
+            data[s_word[0]] = [{"time": s_word[1],"cpm": s_word[2]}]
+
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
 
 def calculate_wpm(sentence, total_time):
     return (len(sentence.split(" ")) / total_time) * 60000
@@ -159,6 +189,48 @@ def find_fail_words(sentence, keystrokes):
 def find_success_words(sentence, keystrokes):
     success_words = []
     typed_word = ""
+    word_number = 0
+    had_error = False
+    split_sentence = sentence.split()
+    first_letter_time = None
+    
+    for keystroke in keystrokes:
+
+        key = keystroke["key"]
+
+        if first_letter_time is None:
+            first_letter_time = keystroke["time"]
+
+        if keystroke["action"] == "up":
+            continue
+
+        if len(key) == 1:
+            typed_word += key
+        if key == "Key.space":
+            if len(typed_word) != 0:
+                typed_word += " "
+        if key == "Key.backspace":
+            typed_word = typed_word[:-1]
+            had_error = True
+
+        if typed_word == split_sentence[word_number]:
+            if had_error == False:
+                time_to_type = keystroke["time"] - first_letter_time
+                clean_word = clean_success_word(typed_word)
+                word_cpm = calculate_cpm(clean_word, time_to_type)
+                success_words.append([clean_word, time_to_type, word_cpm])
+            
+            had_error = False
+            typed_word = ""
+            word_number += 1
+            first_letter_time = None
+    
+    return success_words
+
+
+def find_success_words_old(sentence, keystrokes):
+    success_words = []
+    typed_word = ""
     error_in_word = False
     first_letter_time = None
 
@@ -206,11 +278,38 @@ def clean_success_word(word):
         word = word[:-1]
     return word.lower()
 
+def plot_data(data):
+    # Calculate average CPM for each word
+    avg_cpm = {}
+    for word, entries in data.items():
+        if len(entries) < 5:
+            continue
+        total_cpm = sum(entry['cpm'] for entry in entries)
+        avg_cpm[word] = total_cpm / len(entries)
+    
+    # Sort words by average CPM
+    sorted_words = sorted(avg_cpm, key=avg_cpm.get)
+    sorted_avg_cpm = [avg_cpm[word] for word in sorted_words]
+    
+    #for i in range(0,len(sorted_avg_cpm)):
+    #    print(sorted_words[i], sorted_avg_cpm[i])
+
+    plt.xticks(rotation=90)
+    plt.plot(sorted_words, sorted_avg_cpm)
+    plt.draw()
+    plt.pause(1)
+    plt.clf()
+
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen(1)
     client_socket, client_address = server_socket.accept()
+
+    if os.path.exists("userdata.json"):
+        with open("userdata.json", 'r') as file:
+            stats = json.load(file)
+            plot_data(stats)
 
     while True:
 
@@ -221,6 +320,11 @@ def main():
 
         json_data = json.loads(data)
         process_data(json_data)
+
+        with open("userdata.json", 'r') as file:
+            stats = json.load(file)
+            plot_data(stats)
+
 
 if __name__ == "__main__":
     main()
