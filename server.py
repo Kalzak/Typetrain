@@ -2,6 +2,7 @@ import socket
 import json
 import os
 import matplotlib.pyplot as plt
+import time
 
 HOST = '127.0.0.1'
 PORT = 12345
@@ -282,6 +283,8 @@ def plot_data(data):
     # Calculate average CPM for each word
     avg_cpm = {}
     for word, entries in data.items():
+        if len(word) < 3:
+            continue
         if len(entries) < 5:
             continue
         total_cpm = sum(entry['cpm'] for entry in entries)
@@ -291,13 +294,10 @@ def plot_data(data):
     sorted_words = sorted(avg_cpm, key=avg_cpm.get)
     sorted_avg_cpm = [avg_cpm[word] for word in sorted_words]
     
-    #for i in range(0,len(sorted_avg_cpm)):
-    #    print(sorted_words[i], sorted_avg_cpm[i])
-
     plt.xticks(rotation=90)
     plt.plot(sorted_words, sorted_avg_cpm)
     plt.draw()
-    plt.pause(1)
+    plt.pause(5)
     plt.clf()
 
 def main():
@@ -308,8 +308,17 @@ def main():
 
     if os.path.exists("userdata.json"):
         with open("userdata.json", 'r') as file:
-            stats = json.load(file)
-            plot_data(stats)
+            try:
+                stats = json.load(file)
+                plot_data(stats)
+            except:
+                print("The bug happened let's see if it happens again")
+                try:
+                    stats = json.load(file)
+                    plot_data(stats)
+                except:
+                    print("yeah failed twice")
+            
 
     while True:
 
