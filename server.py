@@ -21,15 +21,6 @@ def process_data(data):
     potential_wpm = calculate_potential_wpm(sentence, keystrokes)
     fail_words = find_fail_words(sentence, keystrokes)
     success_words = find_success_words(sentence, keystrokes)
-    
-    if total_time == optimal_time:
-        optimal_time = "N/A"
-
-    if potential_cpm == actual_cpm:
-        potential_cpm = "N/A"
-
-    if potential_wpm == actual_wpm:
-        potential_wpm = "N/A"
 
     print("Sentence:      ", sentence)
     print("Actual time:   ", total_time)
@@ -44,6 +35,70 @@ def process_data(data):
     write_data(sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
 
 def write_data(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
+    file_path = "userdata.json"
+
+    data = None
+
+    if not os.path.exists(file_path):
+        data = {
+            "sentence_history": [],
+            "success_words": {},
+            "fail_words": {},
+        }
+    else:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+    
+    sentence_number = 0
+    if len(data["sentence_history"]) != 0:
+        sentence_number = data["sentence_history"][0]["number"] + 1
+
+    # Insert new sentence into sentence history
+    sentence_history_data = {
+        "sentence": sentence,
+        "a_time": a_time,
+        "p_time": p_time,
+        "a_cpm": a_cpm,
+        "p_cpm": p_cpm,
+        "a_wpm": a_wpm,
+        "p_wpm": p_wpm,
+        "number": sentence_number
+    }
+    data["sentence_history"].insert(0, sentence_history_data)
+
+    # Insert success word data
+    for s_word in s_words:
+        s_word_data = {
+            "word": s_word[0],
+            "time": s_word[1],
+            "cpm": s_word[2],
+            "number": sentence_number,
+        }
+        if s_word_data["word"] in data["success_words"]:
+            data["success_words"][s_word_data["word"]].insert(0, s_word_data)
+        else:
+            data["success_words"][s_word_data["word"]] = [s_word_data]
+
+    # Insert fail word data
+    for f_word in f_words:
+        f_word_data = {
+            "word": f_word[0],
+            "index": f_word[1],
+            "letter": f_word[2],
+            "number": sentence_number,
+        }
+        if f_word_data["word"] in data["fail_words"]:
+            data["fail_words"][f_word_data["word"]].insert(0, f_word_data)
+        else:
+            data["fail_words"][f_word_data["word"]] = [f_word_data]
+
+    # Write to file
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
+
+
+
+def write_data_old(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
     file_path = "userdata.json"
     
     data = None
@@ -173,7 +228,10 @@ def find_fail_words(sentence, keystrokes):
 
         if sentence[i] == " " or i == len(sentence)-1:
             if error_in_word:
-                fail_words.append([word.lower(), error_in_word_index - word_start_index, error_in_word_letter.lower()])
+                index_in_word_fail = error_in_word_index - word_start_index
+                # Ignore typos that aren't alphanumeric ( commas, question marks, symbols etc)
+                if word.lower()[index_in_word_fail].isalnum():
+                    fail_words.append([word.lower(), index_in_word_fail, error_in_word_letter.lower()])
             word = ""
             error_in_word = False
             word_start_index = i + 1
@@ -228,54 +286,8 @@ def find_success_words(sentence, keystrokes):
     
     return success_words
 
-
-def find_success_words_old(sentence, keystrokes):
-    success_words = []
-    typed_word = ""
-    error_in_word = False
-    first_letter_time = None
-
-    for keystroke in keystrokes:
-        key = keystroke["key"]
-
-        if keystroke["action"] == "up":
-            continue
-
-        if error_in_word == True and key != "Key.space":
-            continue
-
-        if key == "Key.space":
-            if error_in_word == False:
-                time_to_type = keystroke["time"] - first_letter_time
-                clean_word = clean_success_word(typed_word)
-                word_cpm = calculate_cpm(clean_word, time_to_type)
-                success_words.append([clean_word, time_to_type, word_cpm])
-                first_letter_time = None
-            error_in_word = False
-            typed_word = ""
-
-        if len(key) == 1:
-            typed_word += key
-            if first_letter_time is None:
-                first_letter_time = keystroke["time"]
-        if key == "Key.backspace":
-            error_in_word = True
-
-
-        print(key)
-        print(typed_word)
-
-    if error_in_word == False:
-        time_to_type = keystroke["time"] - first_letter_time
-        clean_word = clean_success_word(typed_word)
-        word_cpm = calculate_cpm(clean_word, time_to_type)
-        success_words.append([clean_word, time_to_type, word_cpm])
-        first_letter_time = None
-
-    return success_words
-
 def clean_success_word(word):
-    if word[-1] == "." or word[-1] == ",":
+    if word[-1] == "." or word[-1] == "," or word[-1] == "?":
         word = word[:-1]
     return word.lower()
 
@@ -297,7 +309,7 @@ def plot_data(data):
     plt.xticks(rotation=90)
     plt.plot(sorted_words, sorted_avg_cpm)
     plt.draw()
-    plt.pause(5)
+    plt.pause(3)
     plt.clf()
 
 def main():
@@ -310,12 +322,12 @@ def main():
         with open("userdata.json", 'r') as file:
             try:
                 stats = json.load(file)
-                plot_data(stats)
+                #plot_data(stats)
             except:
                 print("The bug happened let's see if it happens again")
                 try:
                     stats = json.load(file)
-                    plot_data(stats)
+                    #plot_data(stats)
                 except:
                     print("yeah failed twice")
             
@@ -332,7 +344,7 @@ def main():
 
         with open("userdata.json", 'r') as file:
             stats = json.load(file)
-            plot_data(stats)
+            #plot_data(stats)
 
 
 if __name__ == "__main__":
