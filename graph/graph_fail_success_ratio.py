@@ -27,6 +27,9 @@ def plot_fail_percentage():
     # Compute failure percentage
     fail_percentage = {}
     for word in fail_counts.keys():
+        # ignore only one fail
+        if fail_counts[word] == 1:
+            continue
         total_attempts = fail_counts[word] + success_counts.get(word, 0)
         if total_attempts != 0:
             fail_percentage[word] = (fail_counts[word] / total_attempts) * 100

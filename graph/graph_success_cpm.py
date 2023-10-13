@@ -26,6 +26,9 @@ def plot_avg_cpm():
     words = [words[i] for i in sorted_indices]
     avg_cpms = [avg_cpms[i] for i in sorted_indices]
 
+    words = words[0:30] + words[-30:]
+    avg_cpms = avg_cpms[0:30] + avg_cpms[-30:]
+
     # 3. Use matplotlib to plot the graph as a line chart
     plt.plot(words, avg_cpms, marker='o', color='skyblue', linestyle='-')
     plt.title('Average CPM for Last 100 Attempts (or less) per Word')

@@ -334,10 +334,15 @@ def main():
 
     while True:
 
-        data = client_socket.recv(4096 * 32).decode('utf-8')
+        data = client_socket.recv(4096 * 128).decode('utf-8')
 
         if not data:
             break
+
+        with open('output.txt', 'w') as file:
+            file.write(data)
+
+        print(data)
 
         json_data = json.loads(data)
         process_data(json_data)

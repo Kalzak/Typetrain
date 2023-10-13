@@ -69,7 +69,7 @@ def on_key_press(key):
         if key == keyboard.Key.backspace:
             typed_sentence = typed_sentence[:-1]
 
-    keystrokes.append({"key": key_pressed, "action": "down", "time": keypress_time})
+    keystrokes.append({"key": key_pressed, "action": "down", "time": round(keypress_time, 2)})
     
     display_race(target_sentence, typed_sentence)
 
@@ -98,7 +98,7 @@ def on_key_release(key):
     except: 
         return True
 
-    keystrokes.append({"key": key_pressed, "action": "up", "time": keypress_time})
+    keystrokes.append({"key": key_pressed, "action": "up", "time": round(keypress_time, 2)})
 
     if typed_sentence == target_sentence:
         data = {
