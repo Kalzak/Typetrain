@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 # Network data
 HOST = '127.0.0.1'
-PORT = 12345
+PORT = 12346
 
 # Networking stuff
 client_socket = None
@@ -106,10 +106,20 @@ def on_key_release(key):
             "keystrokes": keystrokes,
         }
         json_data = json.dumps(data)
-        client_socket.send(json_data.encode('utf-8'))
+        #client_socket.send(json_data.encode('utf-8'))
+
+        send_data(json_data)
 
         prep_new_race()
         display_race(target_sentence, typed_sentence)
+
+def send_data(json_data):
+    serialized_data = json.dumps(json_data).encode('utf-8')
+    length = len(serialized_data)
+    print(serialized_data)
+    print(length)
+    client_socket.sendall(f"{length:<10}".encode('utf-8'))
+    client_socket.sendall(serialized_data)
 
 def prep_new_race():
     global typed_sentence, keystrokes, sentence_start_time, target_sentence
@@ -118,7 +128,7 @@ def prep_new_race():
     sentence_start_time = None
 
     # Uncomment for predetermined races
-    #target_sentence = random.choice(sentences)
+    target_sentence = random.choice(sentences)
     
     # Uncomment for typeracer races
     target_sentence = get_new_text() 

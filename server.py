@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 HOST = '127.0.0.1'
-PORT = 12345
+PORT = 12346
 
 plt.ion()
 
@@ -334,7 +334,21 @@ def main():
 
     while True:
 
-        data = client_socket.recv(4096 * 128).decode('utf-8')
+        
+        data = None
+
+        data = receive_data(client_socket)
+
+        #data = client_socket.recv(4096 * 128).decode('utf-8')
+
+        #length_data = receive_all(client_socket, 4)
+        #if length_data is None:
+        #    raise Exception("Failed to receive message length")
+        #length = int.from_bytes(length_data, byteorder='big')
+
+        #print(length)
+
+        #data = receive_all(client_socket, length)
 
         if not data:
             break
@@ -350,6 +364,22 @@ def main():
         with open("userdata.json", 'r') as file:
             stats = json.load(file)
             #plot_data(stats)
+
+def receive_data(sock):
+    length = int(sock.recv(10).decode('utf-8').strip())
+    print(length)
+    chunks = []
+    bytes_received = 0
+    while bytes_received < length:
+        chunk = sock.recv(min(length - bytes_received, 4096))
+        if not chunk:
+            raise RuntimeError("Socket connection broken")
+        chunks.append(chunk)
+        bytes_received += len(chunk)
+    
+    serialized_data = b"".join(chunks)
+    #print(json.loads(serialized_data.decode('utf-8')))
+    return json.loads(serialized_data.decode('utf-8'))
 
 
 if __name__ == "__main__":
