@@ -9,6 +9,7 @@ def plot_data():
         with open('userdata.json', 'r') as f:   
             data = json.load(f)
     except:
+        time.sleep(0.1)
         with open('userdata.json', 'r') as f:
             data = json.load(f)
 

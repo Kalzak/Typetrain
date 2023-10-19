@@ -5,8 +5,14 @@ import time
 
 def get_mistyped_data():
     # Load the JSON data
-    with open('userdata.json', 'r') as f:
-        data = json.load(f)
+    data = None
+    try:
+        with open('userdata.json', 'r') as f:
+            data = json.load(f)
+    except:
+        time.sleep(0.1)
+        with open('userdata.json', 'r') as f:
+            data = json.load(f)
         
     latest_attempt = data['sentence_history'][0]['number']
     recent_fail_words = [entry for entry in data['fail_words'].values() if entry[0]['number'] <= latest_attempt and entry[0]['number'] > latest_attempt - 100]

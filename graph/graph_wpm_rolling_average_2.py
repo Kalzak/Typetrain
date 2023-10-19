@@ -13,8 +13,14 @@ def rolling_average(data, window_size):
             yield average
 
 def get_wpm_data():
-    with open('userdata.json', 'r') as f:
-        data = json.load(f)
+    data = None
+    try:
+        with open('userdata.json', 'r') as f:
+            data = json.load(f)
+    except:
+        time.sleep(0.1)
+        with open('userdata.json', 'r') as f:
+            data = json.load(f)
     
     sentence_history = data['sentence_history']
     

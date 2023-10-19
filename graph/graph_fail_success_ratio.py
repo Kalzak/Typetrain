@@ -9,6 +9,7 @@ def plot_fail_percentage():
         with open('userdata.json', 'r') as f:
             data = json.load(f)
     except:
+        time.sleep(0.1)
         with open('userdata.json', 'r') as f:
             data = json.load(f)
     
@@ -27,8 +28,8 @@ def plot_fail_percentage():
     # Compute failure percentage
     fail_percentage = {}
     for word in fail_counts.keys():
-        # ignore only one fail
-        if fail_counts[word] == 1:
+        # ignore only one one zero fails
+        if fail_counts[word] <= 1:
             continue
         total_attempts = fail_counts[word] + success_counts.get(word, 0)
         if total_attempts != 0:

@@ -14,7 +14,7 @@ python3 graph/graph_wpm.py 2>/dev/null &
 python3 graph/graph_success_cpm.py 2>/dev/null &
 python3 graph/graph_fail_success_ratio.py 2>/dev/null &
 python3 graph/graph_letter_errors.py 2>/dev/null &
-python3 graph/graph_wpm_rolling_average.py 2>/dev/null &
+python3 graph/graph_wpm_rolling_average_2.py 2>/dev/null &
 # ... add as many as needed
 
 # Wait forever, until the script receives SIGINT (CTRL+C) or EXIT
