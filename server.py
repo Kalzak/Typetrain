@@ -12,6 +12,9 @@ plt.ion()
 def process_data(data):
     sentence = data["sentence"]
     keystrokes = data["keystrokes"]
+    training = False
+    if "training" in data:
+        training = True
 
     total_time = keystrokes[-1]["time"]
     optimal_time = calculate_optimal_time(sentence, keystrokes)
@@ -32,7 +35,10 @@ def process_data(data):
     print("Fail words:    ", fail_words)
     print("Success words: ", success_words, "\n")
 
-    write_data(sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
+    if training == False:
+        write_data(sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
+    else:
+        print("JUST TRAINING")
 
 def write_data(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
     file_path = "userdata.json"
@@ -93,32 +99,6 @@ def write_data(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_
             data["fail_words"][f_word_data["word"]] = [f_word_data]
 
     # Write to file
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
-
-
-
-def write_data_old(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
-    file_path = "userdata.json"
-    
-    data = None
-    
-    if not os.path.exists(file_path):
-        data = {}
-    else:
-        with open(file_path, "r") as file:
-            data = json.load(file)
-
-    for s_word in s_words:
-        if s_word[0] in data:
-            if len(data[s_word[0]]) >= 10:
-                data[s_word[0]].pop()
-                data[s_word[0]].append({"time": s_word[1],"cpm": s_word[2]})
-            else:
-                data[s_word[0]].append({"time": s_word[1],"cpm": s_word[2]})
-        else:
-            data[s_word[0]] = [{"time": s_word[1],"cpm": s_word[2]}]
-
     with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
 
