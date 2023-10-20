@@ -36,12 +36,11 @@ def process_data(data):
     print("Success words: ", success_words, "\n")
 
     if training == False:
-        write_data(sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
+        write_data("userdata.json", sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
     else:
-        print("JUST TRAINING")
+        write_data("userdata.training.json", sentence, total_time, optimal_time, actual_cpm, potential_cpm, actual_wpm, potential_wpm, fail_words, success_words)
 
-def write_data(sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
-    file_path = "userdata.json"
+def write_data(file_path, sentence, a_time, p_time, a_cpm, p_cpm, a_wpm, p_wpm, f_words, s_words):
 
     data = None
 

@@ -212,7 +212,7 @@ def get_bad_words():
 
     words = words[0:50] + words[-50:]
 
-    return words
+    return random.sample(words, 15)
 
 def get_training_text():
     bad_words = get_bad_words()
