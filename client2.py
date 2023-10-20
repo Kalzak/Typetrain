@@ -40,6 +40,7 @@ typed_sentence = ""
 target_sentence = ""
 sentence_start_time = None
 training = False
+training_type = None
 
 def on_key_press(key):
     global ctrl_pressed, typed_sentence, sentence_start_time
@@ -144,7 +145,10 @@ def prep_new_race():
     target_sentence = get_new_text() 
 
     if training == True:
-        target_sentence = get_training_text()
+        if training_type != "error":
+            target_sentence = get_training_text(get_bad_words())
+        else:
+            target_sentence = get_training_text(get_top_error_words())
 
 def display_race(target_sentence, typed_sentence):
     green_text = "\033[32m"
@@ -214,13 +218,12 @@ def get_bad_words():
 
     return random.sample(words, 15)
 
-def get_training_text():
-    bad_words = get_bad_words()
-    filtered_array = [s for s in bad_words if '\"' not in s]
-    bad_words_string = "\n - ".join(filtered_array)
+def get_training_text(words):
+    filtered_array = [s for s in words if '\"' not in s]
+    words_string = "\n - ".join(filtered_array)
     
 
-    request_string = "Can you create a paragraph that uses some of the following words that I can use for typing practice? You don't have to use all of them. Oh yeah and I'm using you as an API so can you only just reply the paragrahp and that's it? 130 words max please. Here are the words: \n - " + bad_words_string
+    request_string = "Can you create a paragraph that uses some of the following words that I can use for typing practice? You don't have to use all of them. Oh yeah and I'm using you as an API so can you only just reply the paragrahp and that's it? 130 words max please. Here are the words: \n - " + words_string
 
     print(request_string)
 
@@ -236,8 +239,32 @@ def get_training_text():
 
     return completion['choices'][0]['message']['content']
 
+
+def load_json(filename):
+    with open(filename, 'r') as f:
+        return json.load(f)
+
+def calculate_error_rate(data):
+    error_rate = {}
+    for word, entries in data["fail_words"].items():
+        success_count = len(data["success_words"].get(word, []))
+        error_rate[word] = len(entries) / (len(entries) + success_count)
+    return error_rate
+
+def get_top_error_words():
+    user_data = load_json("userdata.json")
+    user_error_rate = calculate_error_rate(user_data)
+    
+    # Filter out words with more than 2 errors
+    user_error_rate = {k: v for k, v in user_error_rate.items() if len(user_data["fail_words"][k]) > 2}
+    
+    # Sort by error rate and get the top 50 words
+    sorted_words = sorted(user_error_rate, key=user_error_rate.get, reverse=True)[:50]
+
+    return random.sample(sorted_words, 15)
+
 def main():
-    global client_socket, target_sentence, training, openai_api_key
+    global client_socket, target_sentence, training, openai_api_key, training_type
 
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -248,6 +275,7 @@ def main():
     wants_to_train = input("Training?")
     if wants_to_train == "y" or wants_to_train == "yes":
         training = True
+        training_type = input("Type 'error' for error training, otherwise cpm")
         
 
     prep_new_race()
