@@ -44,6 +44,7 @@ sentence_start_time = None
 training = False
 training_type = None
 text_type = None
+focus = False
 
 def on_key_press(key):
     global ctrl_pressed, typed_sentence, sentence_start_time
@@ -141,14 +142,27 @@ def prep_new_race():
 
     if training == True:
         if training_type != "error":
-            target_sentence = get_training_text(get_bad_words())
+            if focus == True:
+                target_sentence = generate_focus_text(get_slow_words())
+            else:
+                target_sentence = get_training_text(get_slow_words())
         else:
-            target_sentence = get_training_text(get_top_error_words())
+            if focus == True:
+                target_sentence = generate_focus_text(get_error_words())
+            else:
+                target_sentence = get_training_text(get_error_words())
     else:
         if text_type == "simple":
             target_sentence = random.choice(sentences)
         else:
             target_sentence = get_new_text()
+
+def generate_focus_text(wordlist):
+    paragraph = []
+    while len(paragraph) < 30:
+        random_string = random.choice(wordlist)
+        paragraph.append(random_string)
+    return ' '.join(paragraph)
 
 def display_race(target_sentence, typed_sentence):
     green_text = "\033[32m"
@@ -189,7 +203,7 @@ def get_new_text():
         text_element = soup.find("p")
         return text_element.text[2:]
 
-def get_bad_words():
+def get_slow_words():
     # 1. Read the JSON data from a file
     data = None
     try:
@@ -245,7 +259,7 @@ def calculate_error_rate(data):
         error_rate[word] = len(entries) / (len(entries) + success_count)
     return error_rate
 
-def get_top_error_words():
+def get_error_words():
     user_data = load_json("userdata.json")
     user_error_rate = calculate_error_rate(user_data)
     
@@ -258,7 +272,7 @@ def get_top_error_words():
     return random.sample(sorted_words, 15)
 
 def main():
-    global client_socket, target_sentence, training, openai_api_key, training_type, text_type
+    global client_socket, target_sentence, training, openai_api_key, training_type, text_type, focus
 
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -270,6 +284,9 @@ def main():
     if wants_to_train == "yes":
         training = True
         training_type = input("\"cpm\" or \"error\" training: ")
+        wants_focus_training = input("\"focus\" for focused training: ")
+        if wants_focus_training == "focus":
+            focus = True;
     else:
         text_type = input("\"simple\" or \"typeracer\" texts: ")
 
