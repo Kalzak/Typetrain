@@ -295,6 +295,7 @@ def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen(1)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket, client_address = server_socket.accept()
 
     if os.path.exists("userdata.json"):
@@ -317,17 +318,6 @@ def main():
         data = None
 
         data = receive_data(client_socket)
-
-        #data = client_socket.recv(4096 * 128).decode('utf-8')
-
-        #length_data = receive_all(client_socket, 4)
-        #if length_data is None:
-        #    raise Exception("Failed to receive message length")
-        #length = int.from_bytes(length_data, byteorder='big')
-
-        #print(length)
-
-        #data = receive_all(client_socket, length)
 
         if not data:
             break
@@ -357,7 +347,6 @@ def receive_data(sock):
         bytes_received += len(chunk)
     
     serialized_data = b"".join(chunks)
-    #print(json.loads(serialized_data.decode('utf-8')))
     return json.loads(serialized_data.decode('utf-8'))
 
 
