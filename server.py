@@ -209,7 +209,7 @@ def find_fail_words(sentence, keystrokes):
             if error_in_word:
                 index_in_word_fail = error_in_word_index - word_start_index
                 # Ignore typos that aren't alphanumeric ( commas, question marks, symbols etc)
-                if word.lower()[index_in_word_fail].isalnum():
+                if word.lower()[index_in_word_fail].isalpha(): # was orginally isalnum but annoying to deal with quotes etc
                     fail_words.append([word.lower(), index_in_word_fail, error_in_word_letter.lower()])
             word = ""
             error_in_word = False

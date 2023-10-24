@@ -4,10 +4,9 @@ import json
 import time
 import random
 import os
-import requests
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
-import openai
+
+# Local import
+import texts
 
 # Network data
 HOST = '127.0.0.1'
@@ -15,23 +14,6 @@ PORT = 12346
 
 # Networking stuff
 client_socket = None
-
-# Api
-openai_api_key = None
-
-# Sentences for races
-sentences = [
-    "The quick brown fox jumps over the lazy dog.",
-    "A watched pot never boils.",
-    "All that glitters is not gold.",
-    "Actions speak louder than words.",
-    "Where there's a will, there's a way.",
-    "Every cloud has a silver lining.",
-    "Don't count your chickens before they hatch.",
-    "Birds of a feather flock together.",
-    "A penny for your thoughts.",
-    "You can't judge a book by its cover."
-]
 
 # Typing data
 keystrokes = []
@@ -143,65 +125,63 @@ def prep_new_race():
     if training == True:
         if training_type != "error":
             if focus == True:
-                target_sentence = generate_focus_text(get_slow_words())
+                target_sentence = texts.generate_text_words(get_slow_words())
             else:
-                target_sentence = get_training_text(get_slow_words())
+                target_sentence = texts.generate_text_openai(get_slow_words())
         else:
             if focus == True:
-                target_sentence = generate_focus_text(get_error_words())
+                target_sentence = texts.generate_text_words(get_error_words())
             else:
-                target_sentence = get_training_text(get_error_words())
+                target_sentence = texts.generate_text_openai(get_error_words())
     else:
         if text_type == "simple":
-            target_sentence = random.choice(sentences)
+            target_sentence = texts.get_simple_text()
         else:
-            target_sentence = get_new_text()
+            target_sentence = texts.get_typeracer_text()
 
-def generate_focus_text(wordlist):
-    paragraph = []
-    while len(paragraph) < 30:
-        random_string = random.choice(wordlist)
-        paragraph.append(random_string)
-    return ' '.join(paragraph)
+GREEN_TEXT = "\033[32m"
+RED_TEXT = "\033[31m"
+HIGHLIGHT_TEXT = "\033[30;103m"  # Black text on a yellow background
+RESET_TEXT = "\033[0m"
 
-def display_race(target_sentence, typed_sentence):
-    green_text = "\033[32m"
-    red_text = "\033[31m"
-    reset_text = "\033[0m"
-
-    correct_end_index = None
-    wrong_end_index = None
-
-    for i in range(0, len(typed_sentence)):
-        if i < len(target_sentence) and (target_sentence[i] == typed_sentence[i] and wrong_end_index) is None:
-            correct_end_index = i + 1
-        else:
-            wrong_end_index = i + 1
+def display_race(target_sentence, typed_sentence, highlight_chars=['b', 'v', 'm', 'z']):
+    """
+    Display the target sentence with correct and incorrect parts of the typed sentence highlighted.
+    Also, highlights specific characters from the untyped part based on the highlight_chars list.
+    
+    Parameters:
+    - target_sentence: The correct sentence the user should type.
+    - typed_sentence: The sentence the user has typed so far.
+    - highlight_chars: List of characters to highlight in the untyped part of the target sentence.
+    """
     
     os.system("clear")
-    if correct_end_index is not None:
-        correct_text = target_sentence[0:correct_end_index]
-        print(green_text + correct_text + reset_text, end="")
-    else:
-        correct_end_index = 0
 
-    if wrong_end_index is not None:
-        if wrong_end_index <= len(target_sentence):
-            error_text = target_sentence[correct_end_index:wrong_end_index].replace(" ", "_")
+    correct_chars = 0
+    for target_char, typed_char in zip(target_sentence, typed_sentence):
+        if target_char == typed_char:
+            correct_chars += 1
         else:
-            error_text = (target_sentence[correct_end_index:] + typed_sentence[len(target_sentence):]).replace(" ", "_")
-        print(red_text + error_text + reset_text, end="")
-        print(target_sentence[wrong_end_index:])
-    else:
-        print(target_sentence[correct_end_index:])
+            break
 
-def get_new_text():
-    url = "https://typeracerdata.com/text?id=" + str(random.randint(1,750))
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        text_element = soup.find("p")
-        return text_element.text[2:]
+    # Printing the correct part in green
+    print(GREEN_TEXT + target_sentence[:correct_chars] + RESET_TEXT, end="")
+
+    # Printing the incorrect part in red
+    error_end_index = min(len(target_sentence), len(typed_sentence))
+    error_text = target_sentence[correct_chars:error_end_index].replace(" ", "_")
+    extra_text = typed_sentence[len(target_sentence):].replace(" ", "_")
+    print(RED_TEXT + error_text + extra_text + RESET_TEXT, end="")
+
+    # Printing and highlighting the remaining part of the target sentence
+    remaining_text = target_sentence[error_end_index:]
+    for char in remaining_text:
+        if char in highlight_chars:
+            print(HIGHLIGHT_TEXT + char + RESET_TEXT, end="")
+        else:
+            print(char, end="")
+
+    print()  # To move to the next line after the sentence is displayed
 
 def get_slow_words():
     # 1. Read the JSON data from a file
@@ -232,22 +212,6 @@ def get_slow_words():
 
     return random.sample(words, 15)
 
-def get_training_text(words):
-    filtered_array = [s for s in words if '\"' not in s]
-    words_string = "\n - ".join(filtered_array)
-    request_string = "Can you create a paragraph that uses some of the following words that I can use for typing practice? You don't have to use all of them. Oh yeah and I'm using you as an API so can you only just reply the paragrahp and that's it? 130 words max please. Here are the words: \n - " + words_string
-
-    completion = openai.ChatCompletion.create(
-        model = 'gpt-3.5-turbo',
-        messages = [
-            {'role': 'user', 'content': request_string}
-        ],
-        temperature = 1
-    )
-
-    return completion['choices'][0]['message']['content']
-
-
 def load_json(filename):
     with open(filename, 'r') as f:
         return json.load(f)
@@ -272,10 +236,8 @@ def get_error_words():
     return random.sample(sorted_words, 15)
 
 def main():
-    global client_socket, target_sentence, training, openai_api_key, training_type, text_type, focus
+    global client_socket, target_sentence, training, training_type, text_type, focus
 
-    load_dotenv()
-    openai.api_key = os.getenv("OPENAI_API_KEY")
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((HOST, PORT))
@@ -290,18 +252,13 @@ def main():
     else:
         text_type = input("\"simple\" or \"typeracer\" texts: ")
 
-        
-
     prep_new_race()
     display_race(target_sentence, typed_sentence)
-
-
 
     with keyboard.Listener(on_press = on_key_press, on_release = on_key_release, suppress=True) as listener:
         listener.join()
 
     input("Press enter to exit")
-
     client_socket.close()
 
 if __name__ == "__main__":
