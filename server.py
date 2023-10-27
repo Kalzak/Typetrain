@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 HOST = '127.0.0.1'
-PORT = 12346
+PORT = 12345
 
 plt.ion()
 
@@ -209,8 +209,23 @@ def find_fail_words(sentence, keystrokes):
             if error_in_word:
                 index_in_word_fail = error_in_word_index - word_start_index
                 # Ignore typos that aren't alphanumeric ( commas, question marks, symbols etc)
-                if word.lower()[index_in_word_fail].isalpha(): # was orginally isalnum but annoying to deal with quotes etc
-                    fail_words.append([word.lower(), index_in_word_fail, error_in_word_letter.lower()])
+                #if word.lower()[index_in_word_fail].isalpha(): # was orginally isalnum but annoying to deal with quotes etc
+                #    fail_words.append([word.lower(), index_in_word_fail, error_in_word_letter.lower()])
+
+
+                original_word = word
+                trimmed_word = trim_non_alnum(original_word)
+
+                # Calculate how many characters were removed from the start
+                num_chars_removed = original_word.index(trimmed_word)
+
+                # Adjust the error index
+                adjusted_index = index_in_word_fail - num_chars_removed
+
+                # Only append if the adjusted_index is valid and the error_in_word_letter is alphabetic
+                if 0 <= adjusted_index < len(trimmed_word) and trimmed_word[adjusted_index].isalpha():
+                    fail_words.append([trimmed_word.lower(), adjusted_index, error_in_word_letter.lower()])
+
             word = ""
             error_in_word = False
             word_start_index = i + 1
@@ -223,6 +238,13 @@ def find_fail_words(sentence, keystrokes):
                     error_in_word_letter = fail_letters[i]
 
     return fail_words
+
+def trim_non_alnum(word):
+    while word and not word[0].isalnum():
+        word = word[1:]
+    while word and not word[-1].isalnum():
+        word = word[:-1]
+    return word
 
 def find_success_words(sentence, keystrokes):
     success_words = []

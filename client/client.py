@@ -10,7 +10,7 @@ import texts
 
 # Network data
 HOST = '127.0.0.1'
-PORT = 12346
+PORT = 12345
 
 # Networking stuff
 client_socket = None
@@ -144,7 +144,7 @@ RED_TEXT = "\033[31m"
 HIGHLIGHT_TEXT = "\033[30;103m"  # Black text on a yellow background
 RESET_TEXT = "\033[0m"
 
-def display_race(target_sentence, typed_sentence, highlight_chars=['b', 'v', 'm', 'z']):
+def display_race(target_sentence, typed_sentence, highlight_chars=['k', 'K', 'f', 'F', 'm', 'M']):
     """
     Display the target sentence with correct and incorrect parts of the typed sentence highlighted.
     Also, highlights specific characters from the untyped part based on the highlight_chars list.
@@ -240,6 +240,7 @@ def main():
 
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket.connect((HOST, PORT))
 
     wants_to_train = input("Type \"yes\" for training, otherwise press enter: ")

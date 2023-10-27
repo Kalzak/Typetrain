@@ -10,19 +10,31 @@ def get_mistyped_data():
         with open('userdata.json', 'r') as f:
             data = json.load(f)
     except:
-        time.sleep(0.1)
+        time.sleep(1.1)
         with open('userdata.json', 'r') as f:
             data = json.load(f)
         
     latest_attempt = data['sentence_history'][0]['number']
-    recent_fail_words = [entry for entry in data['fail_words'].values() if entry[0]['number'] <= latest_attempt and entry[0]['number'] > latest_attempt - 100]
+    #recent_fail_words = [entry for entry in data['fail_words'].values() if entry[0]['number'] <= latest_attempt and entry[0]['number'] > latest_attempt - 100]
     
+    recent_fail_words = []
+
+    for word_fails in data['fail_words']:
+        for fail in data['fail_words'][word_fails]:
+            if fail['number'] > latest_attempt - 100:
+                recent_fail_words.append(fail)
+
+    lowest_number = 1000
+
     # Count the errors for each letter
     error_counter = defaultdict(int)
-    for word_list in recent_fail_words:
-        for entry in word_list:
-            error_char = entry['word'][entry['index']]
-            error_counter[error_char] += 1
+    for entry in recent_fail_words:
+        error_char = entry['word'][entry['index']]
+
+        if entry['number'] < lowest_number:
+            lowest_number = entry['number']
+            
+        error_counter[error_char.lower()] += 1
 
     # Count total occurrences of each character in the last 100 sentences
     char_counter = Counter("".join([entry['sentence'] for entry in data['sentence_history'] if entry['number'] <= latest_attempt and entry['number'] > latest_attempt - 100]))
@@ -48,8 +60,21 @@ while True:
     ax1.clear()
     ax2.clear()
 
-    ax1.bar(sorted_chars, sorted_errors, color='gray', label='Total Errors')
-    ax2.plot(sorted_chars, sorted_percentages, color='red', marker='o', linestyle='dashed', label='Error Percentage')
+    bars = ax1.bar(sorted_chars, sorted_errors, color='gray', label='Total Errors')
+    line, = ax2.plot(sorted_chars, sorted_percentages, color='red', marker='o', linestyle='dashed', label='Error Percentage')
+
+    # Annotate bar chart
+    for bar in bars:
+        height = bar.get_height()
+        ax1.annotate('{}'.format(height),
+            xy=(bar.get_x() + bar.get_width() / 2, height),
+            xytext=(0, 3),  # 3 points vertical offset
+            textcoords="offset points",
+            ha='center', va='bottom')
+
+    # Annotate line chart
+    for xi, yi in zip(range(len(sorted_chars)), sorted_percentages):
+        ax2.annotate(f"{yi:.2f}%", (xi, yi), textcoords="offset points", xytext=(0,5), ha='center', color='red')
 
     ax1.set_xlabel('Character')
     ax1.set_ylabel('Total Errors', color='gray')
@@ -57,7 +82,7 @@ while True:
 
     ax1.legend(loc='upper left')
     ax2.legend(loc='upper right')
+
     plt.title('Mistyped Characters in the Last 100 Attempts')
     plt.draw()
     plt.pause(0.5)
-

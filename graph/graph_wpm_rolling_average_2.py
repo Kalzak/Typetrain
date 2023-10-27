@@ -18,7 +18,7 @@ def get_wpm_data():
         with open('userdata.json', 'r') as f:
             data = json.load(f)
     except:
-        time.sleep(0.1)
+        time.sleep(1.1)
         with open('userdata.json', 'r') as f:
             data = json.load(f)
     
