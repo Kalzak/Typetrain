@@ -182,6 +182,8 @@ def display_race(target_sentence, typed_sentence, highlight_chars=['k', 'K', 'f'
             print(char, end="")
 
     print()  # To move to the next line after the sentence is displayed
+    if sentence_start_time is not None:
+        print(int(time.time() * 1000 - sentence_start_time) / 1000)
 
 def get_slow_words():
     # 1. Read the JSON data from a file

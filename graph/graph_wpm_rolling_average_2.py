@@ -37,8 +37,8 @@ while True:
     actual_wpm, potential_wpm, typeracer_actual_wpm, typeracer_potential_wpm = get_wpm_data()
 
     # Get the rolling average for the data
-    rolling_actual_wpm = list(rolling_average(actual_wpm, 10))
-    rolling_potential_wpm = list(rolling_average(potential_wpm, 10))
+    #rolling_actual_wpm = list(rolling_average(actual_wpm, 10))
+    #rolling_potential_wpm = list(rolling_average(potential_wpm, 10))
     rolling_typeracer_actual_wpm = list(rolling_average(typeracer_actual_wpm, 10))
     rolling_typeracer_potential_wpm = list(rolling_average(typeracer_potential_wpm, 10))
     
@@ -46,10 +46,10 @@ while True:
 
     ax.clear()
 
-    ax.plot(x, rolling_actual_wpm, color="green", label="Actual WPM (Native)", linewidth=1.5)
-    ax.plot(x, rolling_potential_wpm, color="green", linestyle="--", label="Potential WPM (Native)", linewidth=1.5)
-    ax.plot(x, rolling_typeracer_actual_wpm, color="orange", label="Actual WPM (TypeRacer)", linewidth=1.5)
-    ax.plot(x, rolling_typeracer_potential_wpm, color="orange", linestyle="--", label="Potential WPM (TypeRacer)", linewidth=1.5)
+    #ax.plot(x, rolling_actual_wpm, color="green", label="Actual WPM (Native)", linewidth=1.5)
+    #ax.plot(x, rolling_potential_wpm, color="green", linestyle="--", label="Potential WPM (Native)", linewidth=1.5)
+    ax.plot(x, rolling_typeracer_actual_wpm, color="blue", label="Actual WPM (TypeRacer)", linewidth=1.5)
+    ax.plot(x, rolling_typeracer_potential_wpm, color="red", linestyle="--", label="Potential WPM (TypeRacer)", linewidth=1.5)
 
     ax.set_title("Rolling Average of Actual vs Potential WPM", fontsize=16)
     ax.set_xlabel("Attempt Number", fontsize=14)
@@ -58,7 +58,7 @@ while True:
     
     # Adding grid lines and adjusting y-axis
     ax.yaxis.grid(True, which="both", linestyle="--", linewidth=0.5)
-    ax.set_yticks(range(0, int(max(rolling_potential_wpm)+10), 5))
+    ax.set_yticks(range(0, int(max(rolling_typeracer_potential_wpm)+10), 5))
 
     plt.draw()
     plt.pause(0.5)
