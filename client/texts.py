@@ -48,13 +48,21 @@ def get_typeracer_text():
     text_id_range = random.choice(typeracer_text_id_ranges)
     text_id = random.randint(text_id_range[0], text_id_range[1])
 
-    url = f"https://typeracerdata.com/text?id={text_id}"
-    response = requests.get(url)
+    # TODO create folder if not exists rather than expect exists
+    path = f"https://typeracerdata.com/text?id={text_id}"
+    if not os.path.exists(f"texts/{text_id}.txt"):   
+        url = path
+        response = requests.get(url)
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        text_element = soup.find("p")
-        return text_element.text[2:]
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+            text_element = soup.find("p")
+            with open(path, "w") as file:
+                file.write(text_element_text[2:])
+            return text_element.text[2:]
+    else:
+        with open(path, "r") as file:
+            return file.readline()
 
 
 # Creates a text by randomly placing provided words
