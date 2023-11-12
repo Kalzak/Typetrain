@@ -49,16 +49,17 @@ def get_typeracer_text():
     text_id = random.randint(text_id_range[0], text_id_range[1])
 
     # TODO create folder if not exists rather than expect exists
-    path = f"https://typeracerdata.com/text?id={text_id}"
-    if not os.path.exists(f"texts/{text_id}.txt"):   
-        url = path
+    url = f"https://typeracerdata.com/text?id={text_id}"
+    path = f"texts/{text_id}.txt"
+    if not os.path.exists(path):
         response = requests.get(url)
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
             text_element = soup.find("p")
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as file:
-                file.write(text_element_text[2:])
+                file.write(text_element.text[2:])
             return text_element.text[2:]
     else:
         with open(path, "r") as file:
