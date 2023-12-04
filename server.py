@@ -3,11 +3,16 @@ import json
 import os
 import matplotlib.pyplot as plt
 import time
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 HOST = '127.0.0.1'
 PORT = 12345
 
 plt.ion()
+
+app = Flask(__name__)
+CORS(app)
 
 def process_data(data):
     sentence = data["sentence"]
@@ -320,6 +325,7 @@ def main():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket, client_address = server_socket.accept()
 
+
     if os.path.exists("userdata.json"):
         with open("userdata.json", 'r') as file:
             try:
@@ -339,7 +345,8 @@ def main():
         
         data = None
 
-        data = receive_data(client_socket)
+        #data = receive_data(client_socket)
+        data = receive_data(app)
 
         if not data:
             break
@@ -371,6 +378,17 @@ def receive_data(sock):
     serialized_data = b"".join(chunks)
     return json.loads(serialized_data.decode('utf-8'))
 
+@app.route('/', methods=['POST'])
+def receive_data_html():
+    json_data = request.get_json()
+    print("Received data:", json_data)
+    
+    # Process the data here
+
+    process_data(json_data)
+    return jsonify({"status": "success", "message": "Data received"}), 200
+
 
 if __name__ == "__main__":
+    app.run(port=8000)
     main()
