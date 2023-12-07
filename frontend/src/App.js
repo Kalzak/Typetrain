@@ -4,10 +4,12 @@ import TargetTextLabel from './TargetTextLabel';
 function App() {
   
   let target_type = "here is a text for you to type";
-  const [text, setText] = useState('Initial Text');
+  const [text, setText] = useState('init');
   const [stats, setStats] = useState({});
   const [startTime, setStartTime] = useState(0);
-  
+  const [doneText, setDoneText] = useState('');
+  const [wrongText, setWrongText] = useState('');
+  const [leftText, setLeftText] = useState('');
 
   const printChar = (char) => {
     console.log(char);
@@ -50,8 +52,33 @@ function App() {
   }
 
   const handleInputChange = () => {
+    let localDoneText = ''
+    let localWrongText = ''
+
     const inputElement = document.getElementById('typed');
     const inputValue = inputElement.value;
+
+    let len = inputValue.length;
+    for(let i = 0; i < inputValue.length; i++) {
+      if(localWrongText.length > 0) {
+        localWrongText += text[i];
+        continue;
+      }
+
+      if(inputValue[i] == text[i]) {
+        localDoneText += text[i];
+        continue;
+      }
+      if(inputValue[i] != text[i]) {
+        localWrongText += text[i];
+        continue;
+      }
+    }
+
+    setDoneText(localDoneText);
+    setWrongText(localWrongText);
+    let bothLength = localDoneText.length + localWrongText.length;
+    setLeftText(text.substring(localDoneText.length + localWrongText.length, text.length));
 
     if(inputValue == text) {
       console.log("DONE");
@@ -61,7 +88,10 @@ function App() {
       fetchTextFromServer(null)
       const inputElement = document.getElementById('typed');
       inputElement.value = ''
+      setDoneText('');
+      setWrongText('');
     }
+
   }
 
   const sendJsonData = (jsonData, serverUrl) => {
@@ -82,9 +112,13 @@ function App() {
   }
 
   const fetchTextFromServer = (event) => {
+    
     if(event != null) {
       event.preventDefault();
     }
+
+    setText("loading");
+    setLeftText("loading");
     
     fetch('http://localhost:5000/get-text')
       .then(response => response.json())
@@ -92,6 +126,7 @@ function App() {
         console.log(data.text);
         // Do something with the text
         setText(data.text)
+        setLeftText(data.text);
         let initialJson = {
           "sentence": data.text,
           "keystrokes": [],
@@ -103,14 +138,16 @@ function App() {
       });
   }
 
-  //fetchTextFromServer(null);
+  if(text == "init") {
+    fetchTextFromServer(null);
+  }
   
   return (
     <div>
       <form>
         <div class="grid gap-6 mb-6 p-2">
             <div>
-                <TargetTextLabel text={text}/>
+                <TargetTextLabel text={leftText} doneText={doneText} wrongText={wrongText}/>
                 <input onKeyDown={(char) => onKeyPress(char.key)} onKeyUp={(char) => onKeyRelease(char.key)} onChange={() => handleInputChange()} type="text" id="typed" class="bg-gray-50 border border-gray-300 text-gray-900 text-2xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Type here" required/>
             </div>
         </div>

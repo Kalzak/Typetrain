@@ -386,6 +386,7 @@ def receive_data_html():
     # Process the data here
 
     process_data(json_data)
+    print(json_data)
     return jsonify({"status": "success", "message": "Data received"}), 200
 
 

@@ -12,7 +12,13 @@ function TargetTextLabel(props) {
   }, []); // Empty dependency array means this runs once after the initial render
   */
 
-  return <label id="target_text" class="block mb-2 text-4xl font-medium text-gray-900 dark:text-white">{props.text}</label>
+  return (
+    <label id="target_text" class="block mb-2 text-4xl font-medium text-gray-900 dark:text-white">
+      <span class="bg-green-400">{props.doneText}</span>
+      <span class="bg-red-400">{props.wrongText}</span>
+      <span>{props.text}</span>
+    </label>
+  );
 }
 
 export default TargetTextLabel;
