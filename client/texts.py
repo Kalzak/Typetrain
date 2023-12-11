@@ -65,6 +65,13 @@ def get_typeracer_text():
         with open(path, "r") as file:
             return file.readline()
 
+def get_cached_typeracer_text():
+    texts = os.listdir("texts/")
+    text_file = random.choice(texts)
+    file_contents = ""
+    with open(f"texts/{text_file}", 'r') as file:
+        file_contents = file.read()
+    return file_contents
 
 # Creates a text by randomly placing provided words
 def generate_text_words(wordlist):
