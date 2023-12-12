@@ -13,9 +13,9 @@ function TargetTextLabel(props) {
   */
 
   return (
-    <label id="target_text" class="block mb-2 text-4xl font-medium text-gray-900 dark:text-white">
-      <span class="bg-green-400">{props.doneText}</span>
-      <span class="bg-red-400">{props.wrongText}</span>
+    <label id="target_text" className="block mb-2 text-4xl font-medium text-gray-900 dark:text-white">
+      <span className="bg-green-400">{props.doneText}</span>
+      <span className="bg-red-400">{props.wrongText}</span>
       <span>{props.text}</span>
     </label>
   );
