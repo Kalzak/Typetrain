@@ -81,6 +81,36 @@ function App() {
       },
     ],
   });
+  const [wpmRollingStatsOptions, setWpmRollingStatsOptions] = useState({
+    animation: {
+      easing: 'easeInQuad', // Use the ease-in easing function
+    },
+    scales: {
+      x: {
+        display: false
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'WPM',
+        },
+      },
+    },
+  });
+  const [wpmRollingStatsData, setWpmRollingStatsData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Potential',
+        data: [],
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 0
+      },
+    ],
+  });
 
   ChartJS.register(
     CategoryScale,
@@ -183,7 +213,6 @@ function App() {
       setWrongText('');
 
       updateWpmGraph();
-
       
     }
   }
@@ -288,9 +317,47 @@ function App() {
     fetch('http://127.0.0.1:44444/wpm-recent')
     .then(response => response.json())
     .then(data => {
-      console.log('got wpm data:', data);
+      console.log('got wpm recent data:', data);
       const resultArray = [...Array(data.p_wpm.length).keys()].map(num => num + 1);
       setWpmRecentStatsData({
+        labels: resultArray,
+        datasets: [
+          {
+            label: 'Potential',
+            data: data.p_wpm,
+            borderColor: "rgba(173, 26, 26, 1)",
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0,
+          },
+          {
+            label: 'Actual',
+            data: data.a_wpm,
+            borderColor: 'rgba(10, 41, 207, 1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0,
+          },
+        ],
+      }
+      );
+    })
+    .catch(error => {
+      console.error('Error fetching wpm data:', error);
+    });
+  }
+
+  const updateWpmRollingGraph = (event) => {
+    if(event != null) {
+      event.preventDefault();
+    }
+
+    fetch('http://127.0.0.1:44444/wpm-rolling-average')
+    .then(response => response.json())
+    .then(data => {
+      console.log('got wpm rolling data:', data);
+      const resultArray = [...Array(data.p_wpm.length).keys()].map(num => num + 1);
+      setWpmRollingStatsData({
         labels: resultArray,
         datasets: [
           {
@@ -321,6 +388,7 @@ function App() {
   const updateAllGraphs = (event) => {
     updateWpmGraph(event);
     updateWpmRecentGraph(event);
+    updateWpmRollingGraph(event);
   }
 
   if(text == "init") {
@@ -350,7 +418,7 @@ function App() {
           <Line data={wpmRecentStatsData} options={wpmRecentStatsOptions} />
         </div>
         <div className="w-1/3">
-          <Line data={wpmStatsData} options={wpmStatsOptions} />
+          <Line data={wpmRollingStatsData} options={wpmRollingStatsOptions} />
         </div>
       </div>
     </div>
