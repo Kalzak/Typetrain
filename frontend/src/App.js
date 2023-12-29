@@ -150,8 +150,11 @@ function App() {
     if(key == "Backspace") {
       key = "Key.backspace"
     }
-    if(key == "Key.space") {
+    if(key == " ") {
       key = "Key.space"
+    }
+    if(key == "Shift") {
+      return;
     }
 
     stats_temp.keystrokes.push({"key": key, "action": "down", "time": keypress_time})
@@ -172,12 +175,25 @@ function App() {
 
     let stats_temp = stats
 
+    console.log("keybefore", key)
+
     if(key == "Backspace") {
       key = "Key.backspace"
     }
-    if(key == "Key.space") {
+    if(key == " ") {
       key = "Key.space"
     }
+    // Added because my keyboard has custom binding for caps = backspace but x window server still 
+    //   treats the "keyup" part as a capslock so pressing shift looks like down:shift up:capslock
+    if(key == "CapsLock") {
+      key = "Shift"
+    }
+
+    if(key == "Shift") {
+      return;
+    }
+
+    console.log("keyafter", key)
 
     stats_temp.keystrokes.push({"key": key, "action": "up", "time": keypress_time})
 

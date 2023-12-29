@@ -229,6 +229,7 @@ def find_fail_words(sentence, keystrokes):
 
                 # Only append if the adjusted_index is valid and the error_in_word_letter is alphabetic
                 if 0 <= adjusted_index < len(trimmed_word) and trimmed_word[adjusted_index].isalpha():
+                    print("failword:", trimmed_word.lower())
                     fail_words.append([trimmed_word.lower(), adjusted_index, error_in_word_letter.lower()])
 
             word = ""
@@ -281,9 +282,14 @@ def find_success_words(sentence, keystrokes):
         if typed_word == split_sentence[word_number]:
             if had_error == False:
                 time_to_type = keystroke["time"] - first_letter_time
-                clean_word = clean_success_word(typed_word)
-                word_cpm = calculate_cpm(clean_word, time_to_type)
-                success_words.append([clean_word, time_to_type, word_cpm])
+                print("ttt", time_to_type)
+                if time_to_type != 0:
+                    clean_word = clean_success_word(typed_word)
+                    word_cpm = calculate_cpm(clean_word, time_to_type)
+                    print("successword", clean_word)
+                    success_words.append([clean_word, time_to_type, word_cpm])
+                else:
+                    print("singleletterstart", clean_success_word(typed_word))
             
             had_error = False
             typed_word = ""
