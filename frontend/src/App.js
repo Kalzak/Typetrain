@@ -15,14 +15,14 @@ import {
 import { Line } from 'react-chartjs-2';
 
 function App() {
-  
-  let target_type = "here is a text for you to type";
+
   const [text, setText] = useState('init');
   const [stats, setStats] = useState({});
   const [startTime, setStartTime] = useState(0);
   const [doneText, setDoneText] = useState('');
   const [wrongText, setWrongText] = useState('');
   const [leftText, setLeftText] = useState('');
+  const [wpm, setWpm] = useState('N/A');
 
   const [wpmStatsOptions, setWpmStatsOptions] = useState({
     scales: {
@@ -123,6 +123,17 @@ function App() {
   );
 
 
+  const calculateWpm = () => {
+    if(startTime == 0) {
+      setWpm(0);
+    }
+    let timePassed = Date.now() - startTime;
+
+    let cpm = (doneText.length / timePassed) * 60000;
+
+    setWpm(Math.floor(cpm / 5));
+  }
+
   const onKeyPress = (key) => {
     if(startTime == 0) {
       setStartTime(Date.now());
@@ -146,6 +157,8 @@ function App() {
     stats_temp.keystrokes.push({"key": key, "action": "down", "time": keypress_time})
 
     setStats(stats_temp);
+
+    calculateWpm();
 
     console.log("D", key, keypress_time, keypress_time);
   }
@@ -406,7 +419,12 @@ function App() {
                 <input onKeyDown={(char) => onKeyPress(char.key)} onKeyUp={(char) => onKeyRelease(char.key)} onChange={() => handleInputChange()} type="text" id="typed" className="bg-gray-50 border border-gray-300 text-gray-900 text-2xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Type here" required/>
             </div>
         </div>
-        <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+        <div>
+          <span>
+            <p className="text-2xl m-2">WPM: {wpm}</p>
+          </span>
+        </div>
+        <button type="submit" className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
         <button onClick={(event) => fetchTextFromServer(event)} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Get new text</button>
         <button onClick={(event) => updateAllGraphs(event)} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update graphs</button>
       </form>
