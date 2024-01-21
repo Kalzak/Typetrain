@@ -1,5 +1,5 @@
 import os
-import openai
+from openai import OpenAI
 import random
 import requests
 from bs4 import BeautifulSoup
@@ -84,12 +84,12 @@ def generate_text_words(wordlist):
 
 # Uses ChatGPT to generate a text containing provided words
 def generate_text_openai(words):
-    # Load the env every time, not efficient but whatever
-    load_dotenv()
+
+    """
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-    words_string = "\n - ".join(words)
-    request_string = "I am doing typing training, please write a paragraph using these words. Just reply with the paragraph only please." + words_string
+
+    
     completion = openai.ChatCompletion.create(
         model = 'gpt-3.5-turbo',
         messages = [{
@@ -98,4 +98,26 @@ def generate_text_openai(words):
         }],
         temperature = 1
     )
-    return completion['choices'][0]['message']['content']
+    """
+
+    # Load the env every time, not efficient but whatever
+    load_dotenv()
+    
+    words_string = "\n - ".join(words)
+    request_string = "I am doing typing training, please write a paragraph using these words. Just reply with the paragraph only please." + words_string
+
+    client = OpenAI(
+        api_key = os.environ.get("OPENAI_API_KEY"),
+    )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": request_string
+            }
+        ],
+        model="gpt-3.5-turbo"
+    )
+
+    return chat_completion.choices[0].message.content
