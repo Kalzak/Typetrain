@@ -2,9 +2,6 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import client.texts
 import stats_server
-from flask import Flask, jsonify
-from flask_cors import CORS
-import client.texts
 import json
 import time
 from collections import defaultdict, Counter
@@ -21,6 +18,16 @@ def get_text():
     text = client.texts.get_typeracer_text()
     
     # Return the text in JSON format
+    return jsonify({'text': text})
+
+@app.route('/get-weak-substrings', methods=['GET'])
+def get_weak_substrings():
+    text = client.texts.get_weak_substrings()
+    return jsonify({'text': text})
+
+@app.route('/get-weak-substring-words', methods=['GET'])
+def get_weak_substring_words():
+    text = client.texts.get_weak_substring_words()
     return jsonify({'text': text})
 
 @app.route('/get-llm-text', methods=['GET'])
@@ -61,25 +68,6 @@ def get_llm_text():
 
     # Plot the data, ordering by total number of failures per word
     words_sorted = sorted(fail_percentage.keys(), key=lambda x: fail_counts[x])  # Sort by ascending number of fails (for right-aligned highest fails)
-    percentages_sorted = [fail_percentage[word] for word in words_sorted]
-
-    returndata = []
-    """
-    for word in words_sorted[-20:]:
-        numfails = 0
-        if word in fail_counts:
-            numfails = fail_counts[word]
-        
-        numpass = 0
-        if word in success_counts:
-            numpass = success_counts[word]
-        
-        returndata.append({
-            'word': word,
-            'fails': numfails,
-            'passes': numpass
-        })
-    """
 
     text = client.texts.generate_text_openai(words_sorted[-30:])
     return jsonify({'text': text})

@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import TargetTextLabel from './TargetTextLabel';
 
+import WordPassFailRate from './WordPassFailRate';
+import LetterErrorRate from './LetterErrorRate';
+
 // Chart stuff
 import {
   Chart as ChartJS,
@@ -23,6 +26,7 @@ function App() {
   const [wrongText, setWrongText] = useState('');
   const [leftText, setLeftText] = useState('');
   const [wpm, setWpm] = useState('N/A');
+  const [textEndpoint, setTextEndpoint] = useState("get-text");
 
   const [wpmStatsOptions, setWpmStatsOptions] = useState({
     scales: {
@@ -175,8 +179,6 @@ function App() {
 
     let stats_temp = stats
 
-    console.log("keybefore", key)
-
     if(key == "Backspace") {
       key = "Key.backspace"
     }
@@ -192,8 +194,6 @@ function App() {
     if(key == "Shift") {
       return;
     }
-
-    console.log("keyafter", key)
 
     stats_temp.keystrokes.push({"key": key, "action": "up", "time": keypress_time})
 
@@ -247,6 +247,10 @@ function App() {
   }
 
   const sendJsonData = (jsonData, serverUrl) => {
+    if(textEndpoint != "get-text") {
+      console.log("not sending data");
+      return;
+    }
     fetch(serverUrl, {
         method: 'POST',
         headers: {
@@ -272,10 +276,9 @@ function App() {
     setText("loading");
     setLeftText("loading");
     
-    fetch('http://localhost:5000/get-text')
+    fetch('http://localhost:5000/' + textEndpoint)
       .then(response => response.json())
       .then(data => {
-        console.log(data.text);
         // Do something with the text
         setText(data.text)
         setLeftText(data.text);
@@ -308,7 +311,6 @@ function App() {
     fetch('http://127.0.0.1:44444/wpm')
     .then(response => response.json())
     .then(data => {
-      console.log('got wpm data:', data);
       const resultArray = [...Array(data.p_wpm.length).keys()].map(num => num + 1);
       setWpmStatsData({
         labels: resultArray,
@@ -346,7 +348,6 @@ function App() {
     fetch('http://127.0.0.1:44444/wpm-recent')
     .then(response => response.json())
     .then(data => {
-      console.log('got wpm recent data:', data);
       const resultArray = [...Array(data.p_wpm.length).keys()].map(num => num + 1);
       setWpmRecentStatsData({
         labels: resultArray,
@@ -384,7 +385,6 @@ function App() {
     fetch('http://127.0.0.1:44444/wpm-rolling-average')
     .then(response => response.json())
     .then(data => {
-      console.log('got wpm rolling data:', data);
       const resultArray = [...Array(data.p_wpm.length).keys()].map(num => num + 1);
       setWpmRollingStatsData({
         labels: resultArray,
@@ -435,15 +435,17 @@ function App() {
                 <input onKeyDown={(char) => onKeyPress(char.key)} onKeyUp={(char) => onKeyRelease(char.key)} onChange={() => handleInputChange()} type="text" id="typed" className="bg-gray-50 border border-gray-300 text-gray-900 text-2xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Type here" required/>
             </div>
         </div>
-        <div>
-          <span>
-            <p className="text-2xl m-2">WPM: {wpm}</p>
-          </span>
-        </div>
-        <button type="submit" className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+      </form>
+      <span>
+        <p className="inline text-2xl m-2">WPM: {wpm}</p>
         <button onClick={(event) => fetchTextFromServer(event)} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Get new text</button>
         <button onClick={(event) => updateAllGraphs(event)} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update graphs</button>
-      </form>
+        <button onClick={(event) => setTextEndpoint("get-llm-text")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">LLM Mode</button>
+        <button onClick={(event) => setTextEndpoint("get-text")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Typeracer Mode</button>
+        <button onClick={(event) => setTextEndpoint("get-weak-substrings")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">WeakSubstring Mode</button>
+        <button onClick={(event) => setTextEndpoint("get-weak-substring-words")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">WeakSubstringWord Mode</button>
+      </span>
+    
       <div className="flex">
         <div className="w-1/3">
           <Line data={wpmStatsData} options={wpmStatsOptions} />
@@ -453,6 +455,14 @@ function App() {
         </div>
         <div className="w-1/3">
           <Line data={wpmRollingStatsData} options={wpmRollingStatsOptions} />
+        </div>
+      </div>
+      <div className="flex">
+        <div className="w-1/3">
+          <WordPassFailRate text={text}/>
+        </div>
+        <div className="w-1/3">
+          <LetterErrorRate/>
         </div>
       </div>
     </div>

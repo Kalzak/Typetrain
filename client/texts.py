@@ -4,6 +4,13 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+import sys
+
+script_dir = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..', 'analysis')))
+
+from find_weak_substrings import find_weak_substrings
+from find_weak_substring_words import find_weak_substring_words
 
 # Simple texts for quick testing
 simple_texts = [
@@ -85,26 +92,11 @@ def generate_text_words(wordlist):
 # Uses ChatGPT to generate a text containing provided words
 def generate_text_openai(words):
 
-    """
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
-
-    
-    completion = openai.ChatCompletion.create(
-        model = 'gpt-3.5-turbo',
-        messages = [{
-            'role': 'user',
-            'content': request_string
-        }],
-        temperature = 1
-    )
-    """
-
     # Load the env every time, not efficient but whatever
     load_dotenv()
     
     words_string = "\n - ".join(words)
-    request_string = "I am doing typing training, please write a paragraph using these words. Just reply with the paragraph only please." + words_string
+    request_string = "I am doing typing training, please write a paragraph using these words. Just reply with the paragraph only please. Try and have between 20-50 words please." + words_string
 
     client = OpenAI(
         api_key = os.environ.get("OPENAI_API_KEY"),
@@ -117,7 +109,32 @@ def generate_text_openai(words):
                 "content": request_string
             }
         ],
+        temperature=1.4,
         model="gpt-3.5-turbo"
     )
 
     return chat_completion.choices[0].message.content
+
+def get_weak_substrings():
+    substrings = find_weak_substrings()
+    total_freq = sum(substring['freq'] for substring in substrings)
+
+    paragraph = []
+
+    for _ in range(40):
+        rand_val = random.randint(1, total_freq)
+        cumulative_freq = 0
+
+        for substring in substrings:
+            cumulative_freq += substring['freq']
+            if rand_val <= cumulative_freq:
+                paragraph.append(substring['substring'].replace(" ", "."))
+                break
+
+    return ' '.join(paragraph)
+
+def get_weak_substring_words():
+    weak_substring_words = find_weak_substring_words(5, 40)
+    return ' '.join(weak_substring_words)
+
+

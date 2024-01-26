@@ -52,20 +52,17 @@ def find_weak_substrings():
 
     sorted_items = sorted(errorsubstrings.items(), key=lambda x: x[1], reverse=True)
 
+    returndata = []
+
     for item in sorted_items:
         if item[1] >= 3:
-            print('{:>4}'.format(item[0].replace(' ', '_')), item[1])
+            #print('{:>4}'.format(item[0].replace(' ', '_')), item[1])
+            returndata.append({
+                "substring": item[0], 
+                "freq": item[1]
+            })
 
-    
-                    
-
-
-    
-
-
-    
-
-            
+    return returndata
 
 
 # Just here so when I run it I can observe
