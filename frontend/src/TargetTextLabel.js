@@ -13,11 +13,14 @@ function TargetTextLabel(props) {
   */
 
   return (
-    <label id="target_text" className="block mb-2 text-4xl font-medium text-gray-900 dark:text-white">
-      <span className="bg-green-400">{props.doneText}</span>
-      <span className="bg-red-400">{props.wrongText}</span>
-      <span>{props.text}</span>
-    </label>
+    <div className="bg-gray-200 h-[15rem]">
+      <label id="target_text" className="2block mb-2 text-4xl font-medium text-gray-900 dark:text-white">
+        <span className="bg-green-400">{props.doneText}</span>
+        <span className="bg-red-400">{props.wrongText}</span>
+        <span>{props.text}</span>
+      </label>
+    </div>
+
   );
 }
 

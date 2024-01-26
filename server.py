@@ -279,20 +279,20 @@ def find_success_words(sentence, keystrokes):
             typed_word = typed_word[:-1]
             had_error = True
 
+        # Error TODO: If typo is incorrect letter where space should have been at end of sentence then word is still typo kinda and breaks success word logic
         if typed_word == split_sentence[word_number]:
             if had_error == False:
                 time_to_type = keystroke["time"] - first_letter_time
                 print("ttt", time_to_type)
-                if time_to_type != 0:
-                    clean_word = clean_success_word(typed_word)
-                    word_cpm = calculate_cpm(clean_word, time_to_type)
-                    print("successword", clean_word)
-                    success_words.append([clean_word, time_to_type, word_cpm])
-                else:
-                    print("singleletterstart", clean_success_word(typed_word))
+                if time_to_type == 0:
+                    time_to_type += 1
+                clean_word = clean_success_word(typed_word)
+                word_cpm = calculate_cpm(clean_word, time_to_type)
+                print("successword", clean_word)
+                success_words.append([clean_word, time_to_type, word_cpm])
             
             had_error = False
-            typed_word = ""
+            typed_word = "" 
             word_number += 1
             first_letter_time = None
     
