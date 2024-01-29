@@ -3,6 +3,7 @@ import TargetTextLabel from './TargetTextLabel';
 
 import WordPassFailRate from './WordPassFailRate';
 import LetterErrorRate from './LetterErrorRate';
+import WeakSubstrings from './WeakSubstrings';
 
 // Chart stuff
 import {
@@ -463,6 +464,9 @@ function App() {
         </div>
         <div className="w-1/3">
           <LetterErrorRate/>
+        </div>
+        <div>
+          <WeakSubstrings/>
         </div>
       </div>
     </div>

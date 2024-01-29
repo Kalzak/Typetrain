@@ -6,6 +6,7 @@ import json
 import time
 from collections import defaultdict, Counter
 
+
 app = Flask(__name__)
 app.debug = True
 CORS(app)

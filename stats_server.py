@@ -3,7 +3,9 @@ from flask_cors import CORS
 import client.texts
 import json
 import time
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter\
+
+from analysis.find_weak_substrings import find_weak_substrings
 
 app = Flask(__name__)
 CORS(app)
@@ -217,6 +219,21 @@ def get_mistyped_data():
         "percentages": sorted_percentages
     })
 
+@app.route('/get-weak-substrings', methods=['GET'])
+def get_weak_substrings():
+    substrings = find_weak_substrings()
+
+    substrs = []
+    frequency = []
+
+    for item in substrings:
+        substrs.append(item["substring"])
+        frequency.append(item["freq"])
+
+    return jsonify({
+        "substrings": substrs,
+        "frequency": frequency
+    })
 
 
 if __name__ == '__main__':
