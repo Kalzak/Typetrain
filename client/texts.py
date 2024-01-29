@@ -134,7 +134,7 @@ def get_weak_substrings():
     return ' '.join(paragraph)
 
 def get_weak_substring_words():
-    weak_substring_words = find_weak_substring_words(5, 40)
+    weak_substring_words = find_weak_substring_words(8, 40)
     return ' '.join(weak_substring_words)
 
 

@@ -1,17 +1,31 @@
-from find_weak_substrings import find_weak_substrings
+from analysis.find_weak_substrings import find_weak_substrings
 import re
-import nltk
 import random
 
+
+def read_words_from_file(filename):
+    word_list = []
+    
+    try:
+        with open(filename, 'r') as file:
+            for line in file:
+                word = line.strip()  # Remove leading/trailing whitespace and newline characters
+                if word:
+                    word_list.append(word)
+    except FileNotFoundError:
+        print(f"File '{filename}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+    return word_list
 
 def find_weak_substring_words(word_len_limit, numwords):
     substrings = find_weak_substrings()
 
-    nltk.download('words')
+    words_list = read_words_from_file('./analysis/google-10000-english-no-swears.txt')
 
-    from nltk.corpus import words
-    
-    words_list = words.words()
+    print(words_list)
+
     temp_words_list = []
     for word in words_list:
         if len(word) <= word_len_limit:
