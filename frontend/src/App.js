@@ -466,7 +466,7 @@ function App() {
           <LetterErrorRate/>
         </div>
         <div>
-          <WeakSubstrings/>
+          <WeakSubstrings text={text}/>
         </div>
       </div>
     </div>
