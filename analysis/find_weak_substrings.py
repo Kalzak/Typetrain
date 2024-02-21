@@ -14,6 +14,8 @@ def load_data(filepath):
 
 def find_weak_substrings():
     
+    min_length = 5
+
     userdata = load_data('userdata.json')
     failwords = userdata["fail_words"]
 
@@ -55,7 +57,7 @@ def find_weak_substrings():
     returndata = []
 
     for item in sorted_items:
-        if item[1] >= 3:
+        if item[1] >= min_length:
             #print('{:>4}'.format(item[0].replace(' ', '_')), item[1])
             returndata.append({
                 "substring": item[0], 

@@ -3,9 +3,10 @@ from flask_cors import CORS
 import client.texts
 import json
 import time
-from collections import defaultdict, Counter\
+from collections import defaultdict, Counter
 
 from analysis.find_weak_substrings import find_weak_substrings
+from analysis.find_word_cpm_data import find_low_cpm_words, find_high_cpm_words
 
 app = Flask(__name__)
 CORS(app)
@@ -235,6 +236,15 @@ def get_weak_substrings():
         "frequency": frequency
     })
 
+@app.route('/get-low-cpm-words', methods=['GET'])
+def get_low_cpm_words():
+    low_cpm_words = find_low_cpm_words()
+    return low_cpm_words
+
+@app.route('/get-high-cpm-words', methods=['GET'])
+def get_high_cpm_words():
+    high_cpm_words = find_high_cpm_words()
+    return high_cpm_words
 
 if __name__ == '__main__':
     app.run(debug=True, port=44444)

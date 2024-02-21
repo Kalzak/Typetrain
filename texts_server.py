@@ -6,6 +6,8 @@ import json
 import time
 from collections import defaultdict, Counter
 
+from analysis.find_word_cpm_data import find_low_cpm_words, find_high_cpm_words
+
 
 app = Flask(__name__)
 app.debug = True
@@ -29,6 +31,16 @@ def get_weak_substrings():
 @app.route('/get-weak-substring-words', methods=['GET'])
 def get_weak_substring_words():
     text = client.texts.get_weak_substring_words()
+    return jsonify({'text': text})
+
+@app.route('/get-high-cpm-words', methods=['GET'])
+def get_high_cpm_words():
+    text = client.texts.get_high_cpm_words()
+    return jsonify({'text': text})
+
+@app.route('/get-low-cpm-words', methods=['GET'])
+def get_low_cpm_words():
+    text = client.texts.get_low_cpm_words()
     return jsonify({'text': text})
 
 @app.route('/get-llm-text', methods=['GET'])

@@ -445,6 +445,8 @@ function App() {
         <button onClick={(event) => setTextEndpoint("get-text")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Typeracer Mode</button>
         <button onClick={(event) => setTextEndpoint("get-weak-substrings")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">WeakSubstring Mode</button>
         <button onClick={(event) => setTextEndpoint("get-weak-substring-words")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">WeakSubstringWord Mode</button>
+        <button onClick={(event) => setTextEndpoint("get-low-cpm-words")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">LowCPM Mode</button>
+        <button onClick={(event) => setTextEndpoint("get-high-cpm-words")} className="m-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">HighCPM Mode</button>
       </span>
     
       <div className="flex">
@@ -463,7 +465,7 @@ function App() {
           <WordPassFailRate text={text}/>
         </div>
         <div className="w-1/3">
-          <LetterErrorRate/>
+          <LetterErrorRate text={text}/>
         </div>
         <div>
           <WeakSubstrings text={text}/>

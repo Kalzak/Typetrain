@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, '..', 'analysis')))
 
 from find_weak_substrings import find_weak_substrings
 from find_weak_substring_words import find_weak_substring_words
+from find_word_cpm_data import find_low_cpm_words, find_high_cpm_words
 
 # Simple texts for quick testing
 simple_texts = [
@@ -137,4 +138,24 @@ def get_weak_substring_words():
     weak_substring_words = find_weak_substring_words(8, 40)
     return ' '.join(weak_substring_words)
 
+def get_high_cpm_words():
+    high_cpm_words = find_high_cpm_words()
+    
+    paragraph = []
+    
+    for _ in range(40):
+        print(random.choice(list(high_cpm_words.keys())))
+        paragraph.append(random.choice(list(high_cpm_words.keys())))
 
+    return ' '.join(paragraph)
+
+def get_low_cpm_words():
+    low_cpm_words = find_low_cpm_words()
+    
+    paragraph = []
+    
+    for _ in range(40):
+        print(random.choice(list(low_cpm_words.keys())))
+        paragraph.append(random.choice(list(low_cpm_words.keys())))
+
+    return ' '.join(paragraph)
