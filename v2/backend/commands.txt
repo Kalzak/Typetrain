@@ -1,0 +1,9 @@
+# Start postgresql
+sudo service postgresql start
+
+# Access postgresql cmdline
+sudo -u postgres psql
+
+
+
+

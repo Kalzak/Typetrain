@@ -234,6 +234,7 @@ function App() {
     if(inputValue == text) {
       console.log("DONE");
       const serverUrl = 'http://localhost:8000'; // Replace with your server URL and port
+      console.log(stats)
       sendJsonData(stats, serverUrl);
 
       fetchTextFromServer(null)

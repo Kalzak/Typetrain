@@ -15,6 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 def process_data(data):
+
     sentence = data["sentence"]
     keystrokes = data["keystrokes"]
     training = False

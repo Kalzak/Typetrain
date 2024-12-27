@@ -1,0 +1,89 @@
+{
+    "lang_id": 1,
+    "text_id": 1,
+    "keystrokes": [
+        {
+            "type": "append",
+            "time": 111,
+            "char": "h"
+        },
+        {
+            "type": "append",
+            "time": 222,
+            "char": "e"
+        },
+        {
+            "type": "append",
+            "time": 333,
+            "char": "l"
+        },
+        {
+            "type": "append",
+            "time": 444,
+            "char": "l"
+        },
+        {
+            "type": "append",
+            "time": 555,
+            "char": "a"
+        },
+        {
+            "type": "delete",
+            "time": 666
+        },
+        {
+            "type": "append",
+            "time": 777,
+            "char": "o"
+        },
+        {
+            "type": "append",
+            "time": 888,
+            "char": " "
+        },
+        {
+            "type": "append",
+            "time": 999,
+            "char": "w"
+        },
+        {
+            "type": "append",
+            "time": 1111,
+            "char": "o"
+        },
+        {
+            "type": "append",
+            "time": 1222,
+            "char": "c"
+        },
+        {
+            "type": "append",
+            "time": 1333,
+            "char": "/"
+        },
+        {
+            "type": "delete",
+            "time": 1444
+
+        },
+        {
+            "type": "delete",
+            "time": 1555
+        },
+        {
+            "type": "append",
+            "time": 1666,
+            "char": "r"
+        },
+        {
+            "type": "append",
+            "time": 1777,
+            "char": "l"
+        },
+        {
+            "type": "append",
+            "time": 1888,
+            "char": "d"
+        }
+    ]
+}
